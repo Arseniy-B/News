@@ -5,7 +5,7 @@ from src.domain.port.news_api import NewsFilter
 from src.exceptions import ValidationError
 
 
-class BaseFilter(BaseModel):
+class BaseFilter(BaseModel, NewsFilter):
     pass
 
 
@@ -41,7 +41,7 @@ class Category(Enum):
     TECHNOLOGY = "technology"
 
 
-class TopHeadlinesFilter(BaseFilter, NewsFilter):
+class TopHeadlinesFilter(BaseFilter):
     country: CountryCode | None = None
     category: Category | None = None
     q: str | None = None

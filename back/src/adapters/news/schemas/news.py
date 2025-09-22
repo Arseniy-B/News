@@ -39,8 +39,5 @@ class NewsResponse(BaseModel, ABCNewsResponse):
             raise ValidationError("empty data")
         if data['status'] == Status.ERROR:
             raise ValidationError(f"code: {data['code']}, message: {data['message']}")
-
         data['news'] = data['articles']
-        print(data)
-        
         return data

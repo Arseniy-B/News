@@ -15,6 +15,6 @@ class NewsFilter(ABC):
 
 class NewsClient(ABC):
     @abstractmethod
-    async def get_news(self, NewsFilter) -> NewsResponse:
+    async def get_news(self, filter: NewsFilter | None) -> NewsResponse:
         pass
 
