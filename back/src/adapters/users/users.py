@@ -1,6 +1,8 @@
 from src.domain.port.users import UserAuthId as ABCUserAuthId, UserRepo
 from src.domain.entities.user import User
 
+import jwt
+
 
 class UserAuthId(ABCUserAuthId):
     access_token: str
@@ -8,11 +10,19 @@ class UserAuthId(ABCUserAuthId):
 
 
 class UserAdapter(UserRepo):
-    async def login(self, User):
-        pass
+    def __init__(self, session: None = None):
+        ...
 
-    async def logout(self, user_id: str) -> None:
-        pass
+    async def create(self, User):
+        ...
 
-    async def is_authenticated(self, User):
-        pass
+    async def login(self, User) -> UserAuthId:
+        ...
+
+
+    async def logout(self, UserAuthId) -> None:
+        ...
+
+
+    async def is_authenticated(self, UserAuthId) -> bool:
+        ...

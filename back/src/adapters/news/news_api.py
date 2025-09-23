@@ -27,7 +27,9 @@ engine = AiohttpSessionEngine()
 
 
 class NewsAdapter(NewsClient):
-    def __init__(self, session: aiohttp.ClientSession):
+    async def __init__(self, session: aiohttp.ClientSession | None = None):
+        if not session:
+            session = await engine.get_session()
         self._session = session
 
     async def _request(
