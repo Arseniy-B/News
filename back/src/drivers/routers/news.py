@@ -10,5 +10,5 @@ router = APIRouter(prefix="/news", dependencies=[Depends(login_required)])
 
 @router.post('/get')
 async def get_news_endpoint(filters: TopHeadlinesFilter | None):
-    return await get_news(NewsAdapter(), filters)
+    return await get_news(NewsAdapter(await engine.get_session()), filters)
 

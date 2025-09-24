@@ -1,20 +1,36 @@
 from abc import ABC, abstractmethod
 from src.domain.entities.user import User
+from dataclasses import dataclass
 
 
+@dataclass
 class UserAuthId(ABC):
     pass
 
+@dataclass
 class UserCreate(ABC):
-    pass
+    login: str
+    password1: str
+    password2: str
 
+
+@dataclass
 class UserLogin(ABC):
-    pass
+    login: str
+    password: str
 
 
 class UserRepo(ABC):
     @abstractmethod
-    async def create(self, user) -> User:
+    async def create(self, user: UserCreate) -> User:
+        pass
+
+    @abstractmethod
+    async def check_password_strength(self, password: str) -> None:
+        pass
+
+    @abstractmethod
+    async def get(self, user_login: UserLogin) -> User:
         pass
 
     @abstractmethod
@@ -22,7 +38,7 @@ class UserRepo(ABC):
         pass
 
     @abstractmethod
-    async def logout(self, user_id: str) -> None:
+    async def logout(self, user: User) -> UserAuthId:
         pass
 
     @abstractmethod

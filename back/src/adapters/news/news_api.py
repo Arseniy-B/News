@@ -27,9 +27,7 @@ engine = AiohttpSessionEngine()
 
 
 class NewsAdapter(NewsClient):
-    async def __init__(self, session: aiohttp.ClientSession | None = None):
-        if not session:
-            session = await engine.get_session()
+    def __init__(self, session: aiohttp.ClientSession):
         self._session = session
 
     async def _request(
@@ -42,7 +40,7 @@ class NewsAdapter(NewsClient):
             async with self._session.request(
                 method=method,
                 url=url,
-                headers={"X-Api-Key": config.API_KEY},
+                headers={"X-Api-Key": config.news_api.API_KEY},
                 data=body,
             ) as response:
                 response_body = {}
@@ -58,7 +56,7 @@ class NewsAdapter(NewsClient):
         if filter:
             query_params = {i: j for i, j in filter.model_dump(exclude_none=True).items() if i}  
             query_string = urlencode(query_params) if query_params else ""
-        url = config.BASE_API_URL + 'top-headlines?' + query_string
+        url = config.news_api.BASE_API_URL + 'top-headlines?' + query_string
         return url
 
 

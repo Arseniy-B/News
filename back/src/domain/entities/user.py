@@ -5,4 +5,5 @@ from dataclasses import dataclass
 class User:
     id: int
     username: str
-    password: str
+    password_hash: str
+    email: str | None = None
