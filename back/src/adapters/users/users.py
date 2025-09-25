@@ -39,8 +39,11 @@ class UserAdapter(UserRepo):
     async def create(self, user_create: UserCreate) -> User:
         user = UserModel(
             username=user_create.login, 
+            email='',
             password=hash_password(user_create.password1)
         )
+        self._session.add(user)
+        await self._session.commit()
         return await UserAdapter.transform_to_user(user)
 
 
