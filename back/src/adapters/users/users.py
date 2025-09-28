@@ -3,11 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from src.domain.entities.user import User
 from src.adapters.db.db import db_helper
+from src.adapters.news.news_api import BaseFilter
 from src.adapters.db.models import Users as UserModel
 from src.adapters.users.schemas import *
 from src.adapters.users.utils.password import *
 from src.adapters.users.utils.jwt import *
+from src.adapters.news.news_api import NewsAdapter
 from pydantic import BaseModel
+from dataclasses import fields
 
 
 
@@ -15,21 +18,32 @@ class UserAdapter(UserRepo):
     def __init__(self, session: AsyncSession):
         self._session = session
 
-
     @staticmethod
     async def transform_to_user(user: UserModel) -> User:
-        return User(
+        domain_user = User(
             id=user.id,
             username=user.username,
-            password_hash=user.password,
+            email=user.email,
+            password_hash=user.password_hash,
         )
+        if user.news_filters:
+            filters = await NewsAdapter.parse_dict_to_filters(user.news_filters) 
+            domain_user.news_filters = filters
+        return domain_user
 
-    async def get(self, user_login: UserLogin) -> User:
+
+    async def get_by_login(self, user_login: UserLogin) -> User:
         stmt = select(UserModel).where(UserModel.username == user_login.login)
         user = await self._session.scalar(stmt)
         if not user:
             raise 
         return await UserAdapter.transform_to_user(user)
+
+    async def get_by_id(self, user_id: int) -> UserModel:
+        user = await self._session.get(UserModel, user_id)
+        if not user:
+            raise
+        return user
 
 
     async def check_password_strength(self, password: str) -> bool:
@@ -47,17 +61,25 @@ class UserAdapter(UserRepo):
         return await UserAdapter.transform_to_user(user)
 
 
+    async def update(self, user: User):
+        user_model = self.get_by_id(user.id)
+        for field in fields(user):
+            value = getattr(user, field.name)
+            setattr(user_model, str(field), value)
+        await self._session.commit()
+
+
     async def login(self, user: User) -> UserAuthId:
         return await create_token_info(user)
 
 
     async def logout(self, auth_id: UserAuthId) -> None:
-        #Add to blacklist in Redis
+        #todo. add to blacklist in Redis
         ...
 
 
     async def is_authenticated(self, auth_id: UserAuthId) -> bool:
-        payload = decode_jwt(UserAuthId.access_token)
+        payload = decode_jwt(auth_id.access_token)
         if payload:
             return True
         return False

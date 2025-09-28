@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, declared_attr, DeclarativeBase
+from sqlalchemy import ForeignKey, Integer, JSON
 from src.config import config
 from src.adapters.db.db import db_helper
 
@@ -15,6 +16,7 @@ class Base(DeclarativeBase):
 
 class Users(Base):
     username: Mapped[str] = mapped_column(nullable=False)
+    password_hash: Mapped[str] = mapped_column(nullable=False)
     email: Mapped[str]
-    password: Mapped[str] = mapped_column(nullable=False)
+    news_filters: Mapped[dict] = mapped_column(JSON)
 

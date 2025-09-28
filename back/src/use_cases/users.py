@@ -12,6 +12,6 @@ async def registration(user_create: UserCreate, user_repo: UserRepo) -> UserAuth
 
 
 async def login(user_login: UserLogin, user_repo: UserRepo) -> UserAuthId:
-    user = await user_repo.get(user_login)
+    user = await user_repo.get_by_login(user_login)
     return await user_repo.login(user)    
 

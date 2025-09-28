@@ -30,7 +30,11 @@ class UserRepo(ABC):
         pass
 
     @abstractmethod
-    async def get(self, user_login: UserLogin) -> User:
+    async def get_by_login(self, user_login: UserLogin) -> User:
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, user_id: int) -> User:
         pass
 
     @abstractmethod

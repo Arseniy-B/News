@@ -12,15 +12,15 @@ SessionDep = Annotated[AsyncSession, Depends(db_helper.get_session)]
 
 
 @router.post("/sign_up")
-async def registration_endpoint(user_create: UserCreate, session: SessionDep):
+async def registration_endpoint(user_create: UserCreate, user_adapter = Depends(login_required)):
     auth_id = await registration(
         user_create=user_create, 
-        user_repo=UserAdapter(session)
+        user_repo=user_adapter
     )
     return auth_id.__dict__
 
 
 @router.post("/sign_in")
-async def login_endpoint(user_login: UserLogin, session: SessionDep):
-    return await login(user_login, UserAdapter(session))
+async def login_endpoint(user_login: UserLogin, user_adapter = Depends(login_required)):
+    return await login(user_login, user_adapter)
 

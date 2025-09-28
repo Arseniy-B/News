@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 
 from src.domain.exceptions import *
 from src.domain.port.news_api import NewsClient
-from src.adapters.news.schemas.filter import BaseFilter
+from src.adapters.news.schemas.filter import BaseFilter, TopHeadlinesFilter
 from src.adapters.news.schemas.news import NewsResponse
 from src.config import config
 
@@ -58,6 +58,21 @@ class NewsAdapter(NewsClient):
             query_string = urlencode(query_params) if query_params else ""
         url = config.news_api.BASE_API_URL + 'top-headlines?' + query_string
         return url
+
+
+    @staticmethod
+    async def parse_dict_to_filters(data: dict[str, Any]) -> BaseFilter:
+        schemas = BaseFilter.__subclasses__()
+        if not schemas:
+            raise
+    
+        for schema in schemas:
+            try:
+                parsed_model = schema.model_validate(**data)
+                return parsed_model
+            except ValidationError:
+                continue
+        raise 
 
 
     async def get_news(self, filter: BaseFilter | None) -> NewsResponse:

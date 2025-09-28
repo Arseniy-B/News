@@ -6,7 +6,8 @@ from src.exceptions import ValidationError
 
 
 class BaseFilter(BaseModel, NewsFilter):
-    pass
+    class Config:
+        use_enum_values = True
 
 
 class CountryCode(Enum):
@@ -48,10 +49,7 @@ class TopHeadlinesFilter(BaseFilter):
     pageSize: int = 20
     page: int = 1
 
-    class Config:
-        use_enum_values = True
-
-
+    
     @model_validator(mode='after')
     def validate(self):
         if self.country and not CountryCode.is_valid(str(self.country)):
