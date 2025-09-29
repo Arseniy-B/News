@@ -54,7 +54,8 @@ class UserAdapter(UserRepo):
         user = UserModel(
             username=user_create.login, 
             email='',
-            password=hash_password(user_create.password1)
+            password_hash=hash_password(user_create.password1),
+            news_filters=dict()
         )
         self._session.add(user)
         await self._session.commit()
