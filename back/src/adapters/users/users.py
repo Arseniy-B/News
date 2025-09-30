@@ -32,12 +32,19 @@ class UserAdapter(UserRepo):
         return domain_user
 
 
+    async def refresh_token(self, refresh_token: str) -> UserAuthId:
+        payload = decode_jwt(refresh_token)
+        user = await self.get_by_id(int(payload.sub))
+        return await create_token_info(await self.transform_to_user(user))
+
+
     async def get_by_login(self, user_login: UserLogin) -> User:
         stmt = select(UserModel).where(UserModel.username == user_login.login)
         user = await self._session.scalar(stmt)
         if not user:
             raise 
         return await UserAdapter.transform_to_user(user)
+
 
     async def get_by_id(self, user_id: int) -> UserModel:
         user = await self._session.get(UserModel, user_id)

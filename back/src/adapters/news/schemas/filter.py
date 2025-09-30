@@ -11,7 +11,7 @@ class BaseFilter(BaseModel, NewsFilter):
 
 
 class CountryCode(Enum):
-    US = "us"  # США
+    US = "US"  # США
     RU = "RU"  # Россия
     CN = "CN"  # Китай
     GB = "GB"  # Великобритания
