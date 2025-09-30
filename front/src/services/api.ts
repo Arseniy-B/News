@@ -53,7 +53,7 @@ async function request<T = any>(
 }
 
 export async function login(username: string, password: string){
-  return request<{access_token: string; refresh_token: string}>(
+  return request<{success: string}>(
     "post",
     "http://127.0.0.1:8000/user/sign_in",
     { login: username, password: password }
@@ -61,7 +61,7 @@ export async function login(username: string, password: string){
 }
 
 export async function register(username: string, password1: string, password2: string){
-  return request<{success: boolean}>(
+  return request<{success: string}>(
     "post",
     "http://127.0.0.1:8000/user/sign_up",
     {login: username, password1: password1, password2: password2}
