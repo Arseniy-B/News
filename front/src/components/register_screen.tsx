@@ -23,16 +23,22 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { useNavigate } from 'react-router-dom';
-import { login } from "../services/api.ts";
+import { register } from "../services/api.ts";
 
 
 const formSchema = z.object({
   username: z.string().min(2).max(50),
-  password: z.string().min(2).max(50),
+  password1: z.string().min(2).max(50),
+  password2: z.string().min(2).max(50),
 })
+.refine((data) => data.password1 === data.password2, {
+  path: ["password2"], // укажем, где показывать ошибку
+  message: "passwords must be the same",
+});
+
 type FormData = z.infer<typeof formSchema>;
 
-export default function LoginScreen(){
+export default function RegisterScreen(){
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = React.useState(false);
 
@@ -40,7 +46,8 @@ export default function LoginScreen(){
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
-      password: "",
+      password1: "",
+      password2: "",
     },
   });
 
@@ -49,7 +56,8 @@ export default function LoginScreen(){
     // ✅ This will be type-safe and validated.
     console.log(values)
     try {
-      const res = await login(values.username, values.password);
+
+      const res = await register(values.username, values.password1, values.password2);
       if (res.data.success === "True"){
         navigate("/news")
       }
@@ -62,7 +70,7 @@ export default function LoginScreen(){
   return (
     <>
       <Card className="w-[100%] h-full rounded-none">
-        <div className="w-full flex justify-end pr-10" onClick={() => navigate("/auth/sign_up")}>Sign up</div>
+        <div className="w-full flex justify-end pr-10" onClick={() => navigate("/auth/sign_in")}>Sign up</div>
         <div className="m-[15%] my-auto">
           <CardContent className="my-5">
             <Form {...form}>
@@ -81,14 +89,41 @@ export default function LoginScreen(){
                 />
                 <FormField
                   control={form.control}
-                  name="password"
+                  name="password1"
                   render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Введите пароль"
+                        placeholder="password"
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-1/2 -translate-y-1/2"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password2"
+                  render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="confirm password"
                         {...field}
                       />
                       <Button
@@ -108,10 +143,10 @@ export default function LoginScreen(){
                 />
                 <div className="w-full mt-10 h-[0.1px] bg-muted rounded-full" />
                 <Button type="submit" className="w-full">
-                  Login
+                  sign up
                 </Button>
                 <Button  variant="outline" className="w-full">
-                  Login with Google
+                  Sign up with Google
                 </Button>
               </form>
             </Form>
