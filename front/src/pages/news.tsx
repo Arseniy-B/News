@@ -1,6 +1,6 @@
-import { Routes, Route, Outlet } from "react-router-dom";
-import { Button } from "@/components/ui/button"
-import { getNews } from "../services/api.ts";
+import { Routes, Route } from "react-router-dom";
+import HeaderMenu from "@/components/header-menu";
+import NewsList from "@/components/news-list";
 
 
 function PageNotFound(){
@@ -8,22 +8,18 @@ function PageNotFound(){
 }
 
 export default function News() {
-  async function clickHandler(){
-    try {
-      const res = await getNews({country: "US"});
-      console.log("Новости:", res.data);
-    } catch (e) {
-      console.error("Ошибка при получении новостей");
-    }
-  }
   return (
     <>
-      <Button onClick={clickHandler}>News</Button>
+      <div className="flex justify-end">
+        <HeaderMenu />
+      </div>
+      <div>
+        <NewsList />
+      </div>
       <Routes>
         <Route path="/" />
         <Route path="*" element={<PageNotFound />}/>
       </Routes>
-      <Outlet/>
     </>
   )
 }

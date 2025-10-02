@@ -3,13 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Eye, EyeOff } from "lucide-react";
 import {
   Card,
-  CardAction,
   CardContent,
-  CardFooter,
-  CardHeader,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -17,9 +13,7 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { z } from "zod";
 import { useNavigate } from 'react-router-dom';
@@ -45,8 +39,6 @@ export default function LoginScreen(){
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
     console.log(values)
     try {
       const res = await login(values.username, values.password);
@@ -62,7 +54,10 @@ export default function LoginScreen(){
   return (
     <>
       <Card className="w-[100%] h-full rounded-none">
-        <div className="w-full flex justify-end pr-10" onClick={() => navigate("/auth/sign_up")}>Sign up</div>
+        <div className="w-full flex lg:justify-end justify-between px-10" >
+          <Button className="lg:hidden" onClick={() => {navigate("/news")}}>News</Button> 
+          <Button variant="ghost" onClick={() => navigate("/auth/sign_up")}>Sign up</Button>
+        </div>
         <div className="m-[15%] my-auto">
           <CardContent className="my-5">
             <Form {...form}>
