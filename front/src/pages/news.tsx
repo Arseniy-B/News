@@ -13,7 +13,7 @@ export default function News() {
       <div className="flex justify-end">
         <HeaderMenu />
       </div>
-      <div>
+      <div className="flex flex-col justify-end">
         <NewsList />
       </div>
       <Routes>

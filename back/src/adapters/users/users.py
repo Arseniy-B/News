@@ -13,7 +13,6 @@ from pydantic import BaseModel
 from dataclasses import fields
 
 
-
 class UserAdapter(UserRepo):
     def __init__(self, session: AsyncSession):
         self._session = session

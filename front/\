@@ -39,14 +39,11 @@ export type NewsResponse = {
 }
 
 export default function NewsCard({ news }: NewsCardProps){
+  console.log(news);
+
   return (
     <Card>
-      <CardHeader>
-        {news.urlToImage && <img src={news.urlToImage} alt="Описание" />}
-        {news.title}
-      </CardHeader>
-      <CardContent>{news.description}</CardContent>
-      <CardFooter></CardFooter>
+      <CardHeader></CardHeader>
     </Card>
   )
 }

@@ -1,7 +1,7 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import BaseModel
 from pathlib import Path
 
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent
 
@@ -46,5 +46,4 @@ class Config():
     auth_jwt = AuthJWT()
 
 
-    
 config = Config() # pyright: ignore
