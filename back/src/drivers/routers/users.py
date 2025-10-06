@@ -1,29 +1,25 @@
-from fastapi import APIRouter, Depends, Response
-from src.drivers.dependencies.auth import login_required, set_user_jwt
-from src.adapters.users.schemas import UserAuthId
-from src.adapters.users.users import *
-from src.use_cases.users import registration, login
-from src.adapters.db.db import db_helper
-from typing import Annotated
-
+from fastapi import APIRouter, Depends
+from src.domain.entities.user import UserCreate, UserLogin
+from src.use_cases.users import login, registration
+from src.drivers.dependencies.user import get_user_repo, get_auth_repo
 
 router = APIRouter(prefix="/user")
-SessionDep = Annotated[AsyncSession, Depends(db_helper.get_session)]
 
 
 @router.post("/sign_up")
-async def registration_endpoint(user_create: UserCreate, session: SessionDep):
-    await registration(user_create=user_create, user_repo=UserAdapter(session))
+async def registration_endpoint(
+    user_create: UserCreate,
+    user_repo = Depends(get_user_repo)
+):
+    await registration(user_create=user_create, user_repo=user_repo)
     return {"success", True}
 
 
 @router.post("/sign_in")
 async def login_endpoint(
-    user_login: UserLogin, response: Response, session: SessionDep
+    user_login: UserLogin,
+    user_repo = Depends(get_user_repo),
+    auth_repo = Depends(get_auth_repo)
 ):
-    auth_id = await login(user_login, UserAdapter(session))
-    if not isinstance(auth_id, UserAuthId):
-        raise
-
-    await set_user_jwt(response, auth_id)
+    await login(user_login, auth_repo=auth_repo, user_repo=user_repo)
     return {"success": "True"}

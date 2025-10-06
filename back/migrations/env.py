@@ -27,7 +27,9 @@ target_metadata = None
 from src.config import config as settings
 from src.adapters.db.models import Base
 
-config.set_main_option("sqlalchemy.url", settings.db.DATABASE_URL + "?async_fallback=True")
+config.set_main_option(
+    "sqlalchemy.url", settings.db.DATABASE_URL + "?async_fallback=True"
+)
 target_metadata = Base.metadata
 
 
@@ -69,9 +71,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

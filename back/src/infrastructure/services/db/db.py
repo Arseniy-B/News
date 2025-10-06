@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import (
-    create_async_engine, 
-    async_sessionmaker, 
-    async_scoped_session, 
+    create_async_engine,
+    async_sessionmaker,
+    async_scoped_session,
+    AsyncSession
 )
 from asyncio import current_task
 from src.config import config
@@ -14,9 +15,9 @@ class DBHelper:
             echo=echo,
             pool_size=5,
             max_overflow=10,
-        ) 
+        )
         self.session_factory = async_sessionmaker(
-            bind=self.engine, 
+            bind=self.engine,
             autoflush=False,
             autocommit=False,
             expire_on_commit=False,
@@ -35,4 +36,3 @@ class DBHelper:
 
 
 db_helper = DBHelper(url=config.db.DATABASE_URL, echo=config.db.db_echo)
-

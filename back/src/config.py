@@ -11,15 +11,15 @@ class AuthJWT(BaseModel):
     public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 15
-    refresh_token_expire_minutes: int = 60 * 24 * 30 
+    refresh_token_expire_minutes: int = 60 * 24 * 30
 
 
 class BaseDbSettings(BaseSettings):
     DB_HOST: str
     DB_PORT: str
-    DB_USER: str 
-    DB_PASS: str    
-    DB_NAME: str 
+    DB_USER: str
+    DB_PASS: str
+    DB_NAME: str
 
     db_echo: bool = True
 
@@ -27,7 +27,7 @@ class BaseDbSettings(BaseSettings):
     def DATABASE_URL(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    model_config = SettingsConfigDict(env_file=BASE_DIR / '.env', extra='allow')
+    model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", extra="allow")
 
 
 class BaseNewsApiSettings(BaseSettings):
@@ -37,13 +37,14 @@ class BaseNewsApiSettings(BaseSettings):
     @property
     def get_url(self):
         return f"https://newsapi.org/v2/everything?q=tesla&from=2025-08-19&sortBy=publishedAt&language=ru&apiKey={self.API_KEY}"
-    model_config = SettingsConfigDict(env_file=BASE_DIR / '.env', extra='allow')
+
+    model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", extra="allow")
 
 
-class Config():
-    news_api = BaseNewsApiSettings() #pyright: ignore
-    db = BaseDbSettings() #pyright: ignore
+class Config:
+    news_api = BaseNewsApiSettings()  # pyright: ignore
+    db = BaseDbSettings()  # pyright: ignore
     auth_jwt = AuthJWT()
 
 
-config = Config() # pyright: ignore
+config = Config()  # pyright: ignore

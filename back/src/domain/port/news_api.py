@@ -1,20 +1,8 @@
 from abc import ABC, abstractmethod
-
-
-class News(ABC):
-    pass
-
-
-class NewsResponse():
-    news: list[News]
-
-
-class NewsFilter(ABC):
-    pass
+from src.domain.entities.news import NewsFilter, News
 
 
 class NewsClient(ABC):
     @abstractmethod
-    async def get_news(self, filter: NewsFilter | None) -> NewsResponse:
+    async def get_news_list(self, filter: NewsFilter | None) -> list[News]:
         pass
-

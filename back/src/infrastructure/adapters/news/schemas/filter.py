@@ -1,8 +1,9 @@
-from pydantic import BaseModel, model_validator, model_serializer
 from enum import Enum
 
+from pydantic import BaseModel, model_validator
+
 from src.domain.port.news_api import NewsFilter
-from src.exceptions import ValidationError
+from src.infrastructure.exceptions import ValidationError
 
 
 class BaseFilter(BaseModel, NewsFilter):
@@ -49,9 +50,8 @@ class TopHeadlinesFilter(BaseFilter):
     pageSize: int = 20
     page: int = 1
 
-    
-    @model_validator(mode='after')
-    def validate(self):
+    @model_validator(mode="after")
+    def vavlidate_all_fields(self):
         if self.country and not CountryCode.is_valid(str(self.country)):
             raise ValidationError("wrond country code")
         if self.q and len(self.q) > 1000:
@@ -67,4 +67,3 @@ class TopHeadlinesFilter(BaseFilter):
                 country, category, q"""
             )
         return self
-

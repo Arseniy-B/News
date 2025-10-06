@@ -1,18 +1,19 @@
-from src.domain.entities.user import User
-from src.domain.port.users import *
+import re
+
+from src.domain.entities.user import User, UserCreate, UserLogin
+from src.domain.exceptions import UserNotFound
+from src.domain.port.users import UserRepository, AuthRepository
 
 
-async def registration(user_create: UserCreate, user_repo: UserRepo) -> User:
-    if user_create.password1 != user_create.password2:
-        raise
-    await user_repo.check_password_strength(user_create.password1)
-
-    user: User = await user_repo.create(user_create)
+async def registration(user_create: UserCreate, user_repo: UserRepository) -> User:
+    user = await user_repo.create(user_create)
     if not user:
-        raise
+        raise UserNotFound
     return user
 
 
-async def login(user_login: UserLogin, user_repo: UserRepo) -> UserAuthId:
+async def login(user_login: UserLogin, auth_repo: AuthRepository, user_repo: UserRepository):
     user = await user_repo.get_by_login(user_login)
-    return await user_repo.login(user)
+    if not user:
+        raise UserNotFound
+    await auth_repo.login(user)

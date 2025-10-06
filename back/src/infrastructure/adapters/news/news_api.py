@@ -1,14 +1,15 @@
-from http import HTTPMethod, HTTPStatus
+from http import HTTPStatus
 from typing import Any
 from urllib.parse import urlencode
 
 import aiohttp
-from pydantic_settings import BaseSettings
 
-from src.adapters.news.schemas.filter import BaseFilter, TopHeadlinesFilter
-from src.adapters.news.schemas.news import NewsResponse
+from src.infrastructure.exceptions import ValidationError
+from src.infrastructure.adapters.news.schemas.filter import BaseFilter
+from src.infrastructure.adapters.news.schemas.news import NewsResponse
 from src.config import config
-from src.domain.exceptions import *
+from src.domain.entities.news import News, NewsFilter
+from src.domain.exceptions import NewsRepoError
 from src.domain.port.news_api import NewsClient
 
 
@@ -33,7 +34,6 @@ class NewsAdapter(NewsClient):
 
     async def _request(self, method: str, url: str, body: dict | None = None):
         try:
-            print(url)
             async with self._session.request(
                 method=method,
                 url=url,
@@ -45,13 +45,13 @@ class NewsAdapter(NewsClient):
                     response_body = await response.json()
             return response_body, response.status
         except Exception as e:
-            raise NewsClientError from e
+            raise NewsRepoError from e
 
-    async def get_url(self, filter: BaseFilter | None) -> str:
+    async def get_url(self, filter: NewsFilter | None) -> str:
         query_string = ""
         if filter:
             query_params = {
-                i: j for i, j in filter.model_dump(exclude_none=True).items() if i
+                k: v for k, v in filter.__dict__.items() if v is not None
             }
             query_string = urlencode(query_params) if query_params else ""
         url = config.news_api.BASE_API_URL + "top-headlines?" + query_string
@@ -71,7 +71,7 @@ class NewsAdapter(NewsClient):
                 continue
         raise
 
-    async def get_news(self, filter: BaseFilter | None) -> NewsResponse:
+    async def get_news_list(self, filter: NewsFilter | None) -> list[News]:
         response_news = None
         url = await self.get_url(filter)
         body, status = await self._request("GET", url)
@@ -79,6 +79,6 @@ class NewsAdapter(NewsClient):
             try:
                 response_news = NewsResponse.model_validate(body)
             except ValidationError:
-                raise NewsFetchingError("Invalid news data format")
-            return response_news
-        raise NewsFetchingError(f"Unexpected status code: {status}")
+                raise NewsRepoError("Invalid news data format")
+            return response_news.news
+        raise NewsRepoError(f"Unexpected status code: {status}")

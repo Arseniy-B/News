@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends 
+from fastapi import APIRouter, Depends
 from src.use_cases.news_api import get_news
-from src.adapters.news.news_api import NewsAdapter, engine
-from src.adapters.news.schemas.filter import TopHeadlinesFilter
-from src.drivers.dependencies.auth import login_required
+from src.infrastructure.adapters.news.news_api import NewsAdapter, engine
+from src.infrastructure.adapters.news.schemas.filter import TopHeadlinesFilter
 
 
-router = APIRouter(prefix="/news", dependencies=[Depends(login_required)])
+router = APIRouter(prefix="/news")
 
 
 @router.post("/get")

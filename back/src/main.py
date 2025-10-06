@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.drivers.routers.news import router as news_router
 from src.drivers.routers.users import router as users_router
 
-
 origins = [
     "http://localhost:5173",
     "http://localhost",

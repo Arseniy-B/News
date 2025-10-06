@@ -1,10 +1,11 @@
-from src.domain.port.news_api import News as ABCNews, NewsResponse as ABCNewsResponse
-from src.domain.exceptions import *
+from datetime import datetime
+from enum import Enum
+from typing import Any
+
 from pydantic import BaseModel, model_validator
 
-from datetime import datetime
-from typing import Any
-from enum import Enum
+from src.domain.exceptions import ValidationError
+from src.domain.port.news_api import News as ABCNews
 
 
 class Source(BaseModel):
@@ -19,7 +20,7 @@ class News(BaseModel, ABCNews):
     description: str | None
     url: str | None
     urlToImage: str | None
-    publishedAt: datetime 
+    publishedAt: datetime
     content: str | None
 
 
@@ -28,16 +29,16 @@ class Status(Enum):
     ERROR = "error"
 
 
-class NewsResponse(BaseModel, ABCNewsResponse):
-    news: list[News]
+class NewsResponse(BaseModel):
+    news: list[ABCNews]
     status: Status
     totalResults: int
 
     @model_validator(mode="before")
-    def validate(cls, data: Any):
-        if not data: 
+    def validate_all_fields(cls, data: Any):
+        if not data:
             raise ValidationError("empty data")
-        if data['status'] == Status.ERROR:
+        if data["status"] == Status.ERROR:
             raise ValidationError(f"code: {data['code']}, message: {data['message']}")
-        data['news'] = data['articles']
+        data["news"] = data["articles"]
         return data
