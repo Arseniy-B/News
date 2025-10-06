@@ -33,7 +33,7 @@ export default function NewsList(){
   async function addNews(){
     try {
       const res = await getNews({country: "US"}) as AxiosResponse<NewsResponse>;
-      const typedNews: NewsItem[] = res.data.news;
+      const typedNews: NewsItem[] = res.data;
       setNews(typedNews);
     } catch (e) {
       console.error("Ошибка при получении новостей");

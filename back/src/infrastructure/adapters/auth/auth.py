@@ -26,7 +26,7 @@ class AuthAdapter(AuthRepository):
         )
         self._response.headers["Authorization"] = f"Bearer {user_jwt.access_token}"
 
-    def get_user_jwt(self) -> UserJWT:
+    def get_user_jwt(self) -> UserJWT | None:
         access_token = self._request.headers["Authorization"]
         refresh_token = self._request.cookies.get("refresh_token")
 
@@ -35,11 +35,10 @@ class AuthAdapter(AuthRepository):
             raise
         access_token = access_token[1]
 
-        if not access_token or not refresh_token:
-            raise
-
-        user_jwt = UserJWT(access_token=access_token, refresh_token=refresh_token)
-        return user_jwt
+        if refresh_token and access_token:
+            user_jwt = UserJWT(access_token=access_token, refresh_token=refresh_token)
+            return user_jwt
+        return None
 
     # async def refresh_token(self, refresh_token: str):
     #     payload = decode_jwt(refresh_token)
@@ -50,6 +49,7 @@ class AuthAdapter(AuthRepository):
 
     async def login(self, user: User):
         user_jwt = await create_token_info(user)
+        self._user_jwt = user_jwt
         await self.set_user_jwt(user_jwt)
 
     async def logout(self) -> None:
@@ -57,7 +57,8 @@ class AuthAdapter(AuthRepository):
         ...
 
     async def is_authenticated(self) -> bool:
-        payload = decode_jwt(self._user_jwt.access_token)
-        if payload:
-            return True
+        if self._user_jwt:
+            payload = decode_jwt(self._user_jwt.access_token)
+            if payload:
+                return True
         return False

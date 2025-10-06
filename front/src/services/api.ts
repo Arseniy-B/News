@@ -56,19 +56,26 @@ export async function login(username: string, password: string){
   return request<{success: string}>(
     "post",
     "http://127.0.0.1:8000/user/sign_in",
-    { login: username, password: password }
+    { username: username, password: password }
   )
 }
 
-export async function register(username: string, password1: string, password2: string){
+export async function register(username: string, email: string, password: string){
   return request<{success: string}>(
     "post",
     "http://127.0.0.1:8000/user/sign_up",
-    {login: username, password1: password1, password2: password2}
+    {
+      username: username, 
+      email: email,
+      password: password,
+    }
   )
 }
 
 export async function getNews(filters: any = {}){
+  if (!("categories" in filters)){
+    filters.categories = [];
+  }
   return request(
     "post",
     "http://127.0.0.1:8000/news/get",

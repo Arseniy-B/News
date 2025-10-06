@@ -22,6 +22,7 @@ import { register } from "../services/api.ts";
 
 const formSchema = z.object({
   username: z.string().min(2).max(50),
+  email: z.string().min(5).max(100),
   password1: z.string().min(2).max(50),
   password2: z.string().min(2).max(50),
 })
@@ -40,6 +41,7 @@ export default function RegisterScreen(){
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
+      email: "",
       password1: "",
       password2: "",
     },
@@ -50,8 +52,7 @@ export default function RegisterScreen(){
     // ✅ This will be type-safe and validated.
     console.log(values)
     try {
-
-      const res = await register(values.username, values.password1, values.password2);
+      const res = await register(values.username, values.email, values.password1);
       if (res.data.success === "True"){
         navigate("/news")
       }
@@ -83,6 +84,19 @@ export default function RegisterScreen(){
                   </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                    <FormControl>
+                      <Input placeholder="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="password1"

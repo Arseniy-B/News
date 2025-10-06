@@ -32,11 +32,8 @@ interface NewsCardProps {
   news: NewsItem;
 }
 
-export type NewsResponse = {
-  news: NewsItem[];
-  status: Status;
-  totalResults: number;
-}
+export type NewsResponse = NewsItem[]
+
 
 export default function NewsCard({ news }: NewsCardProps){
   return (

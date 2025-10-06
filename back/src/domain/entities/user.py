@@ -22,6 +22,7 @@ class UserCreate:
     username: str
     password: str
     email: str
+    password: str
 
     def __post_init__(self):
         if not isinstance(self.username, str):
@@ -31,24 +32,25 @@ class UserCreate:
         if not isinstance(self.email, str):
             raise ValidationError("email", "not string")
 
-        if not re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", self.email):
+        print(self.password)
+        if not bool(re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", self.email)):
             raise ValidationError("email", "wrong email adress")
-        if not len(self.password) > 5:
+        if len(self.password) < 5:
             raise ValidationError("password", "the password is not strong enough")
-        if not len(self.password) < 100:
+        if len(self.password) > 100:
             raise ValidationError("password", "password too long")
-        if not len(self.username) > 2:
+        if len(self.username) < 2:
             raise ValidationError("username", "username too smoll")
-        if not len(self.username) < 25:
+        if len(self.username) > 25:
             raise ValidationError("username", "username too long")
 
         
 
 @dataclass
 class UserLogin:
-    username: str | None
     password: str
-    email: str | None
+    username: str | None = None
+    email: str | None = None
 
     def __post_init__(self):
         if not isinstance(self.username, str) and not self.username:
@@ -68,9 +70,9 @@ class UserLogin:
         if not len(self.password) < 100:
             raise ValidationError("password", "password too long")
         if self.username:
-            if not len(self.username) > 2:
+            if len(self.username) < 2:
                 raise ValidationError("username", "username too smoll")
-            if not len(self.username) < 25:
+            if len(self.username) > 25:
                 raise ValidationError("username", "username too long")
 
         
