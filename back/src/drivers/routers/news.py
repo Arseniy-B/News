@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from src.use_cases.news_api import get_news
+from src.use_cases.get_news import get_news
 from src.infrastructure.adapters.news.news_api import NewsAdapter, engine
 from src.infrastructure.adapters.news.schemas.filter import TopHeadlinesFilter
 

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructure.services.db.models import Users as UserModel
 from src.infrastructure.adapters.news.news_api import NewsAdapter
-from src.infrastructure.adapters.users.utils.password import hash_password
+from src.infrastructure.adapters.users.utils.password import hash_password, validate_password
 from src.domain.entities.user import User, UserCreate, UserLogin
 from src.domain.port.users import UserRepository
 
@@ -13,6 +13,9 @@ from src.domain.port.users import UserRepository
 class UserAdapter(UserRepository):
     def __init__(self, session: AsyncSession):
         self._session = session
+
+    def verify_password(self, password: str, password_hash: str) -> bool:
+        return validate_password(password, password_hash)
 
     @staticmethod
     async def transform_to_user(user: UserModel) -> User:
@@ -29,18 +32,22 @@ class UserAdapter(UserRepository):
             domain_user.news_filters = filters
         return domain_user
 
-    async def get_by_login(self, user_login: UserLogin) -> User:
+    async def get_by_login(self, user_login: UserLogin) -> User | None:
         stmt = select(UserModel).where(UserModel.username == user_login.username)
         user = await self._session.scalar(stmt)
-        if not user:
-            raise
-        return await UserAdapter.transform_to_user(user)
+        if user:
+            return await UserAdapter.transform_to_user(user)
 
-    async def get_by_id(self, user_id: int) -> User:
+    async def get_by_email(self, user_email: str) -> User | None:
+        stmt = select(UserModel).where(UserModel.email == user_email)
+        user = await self._session.scalar(stmt)
+        if user:
+            return await UserAdapter.transform_to_user(user)
+
+    async def get_by_id(self, user_id: int) -> User | None:
         user = await self._session.get(UserModel, user_id)
-        if not user:
-            raise
-        return await self.transform_to_user(user)
+        if user:
+            return await self.transform_to_user(user)
 
     async def create(self, user_create: UserCreate) -> User:
         user = UserModel(

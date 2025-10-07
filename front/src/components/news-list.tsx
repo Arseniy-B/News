@@ -57,8 +57,17 @@ export default function NewsList(){
   }, [news]);
 
   useEffect(() => {
-    if (carousels) {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    if (carousels && carousels.length > 0) {
+      const lastIndex = carousels.length - 1;
+      const lastCarousel = document.querySelector(`[data-carousel-index="${lastIndex}"]`);
+      if (lastCarousel) {
+        // Скролл к первому NewsCard в новой карусели (найди по селектору внутри)
+        const firstNewsCard = lastCarousel.querySelector('.news-card-selector');  // Замени на класс NewsCard, напр. '[data-news-card]'
+        (firstNewsCard || lastCarousel).scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start'  // Или 'center' для центра экрана
+        });
+      }
     }
   }, [carousels]);
 
@@ -71,22 +80,23 @@ export default function NewsList(){
 
   return (
     <div className="w-100 mx-auto">
-      {carousels.map((item) => (
-        <Carousel setApi={setApi}>
-          <CarouselContent>
-            {item.map((n, index) => (
-              <CarouselItem key={index}>
-                <NewsCard news={n} />
+      {carousels.map((item, index) => (
+        <div key={index} data-carousel-index={index}>
+          <Carousel setApi={setApi}>
+            <CarouselContent>
+              {item.map((n, index) => (
+                <CarouselItem key={index}>
+                  <NewsCard news={n} />
+                </CarouselItem>
+              ))}
+              <CarouselItem>
               </CarouselItem>
-            ))}
-            <CarouselItem>
-            </CarouselItem>
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </div>
       ))}
-      <div className="h-50"></div>
     </div>
   )
 }

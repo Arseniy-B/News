@@ -9,7 +9,7 @@ from src.infrastructure.adapters.news.schemas.filter import BaseFilter
 from src.infrastructure.adapters.news.schemas.news import NewsResponse
 from src.config import config
 from src.domain.entities.news import News, NewsFilter
-from src.domain.exceptions import NewsRepoError
+from src.infrastructure.exceptions import NewsRepoError
 from src.domain.port.news_api import NewsClient
 
 

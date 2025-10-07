@@ -6,24 +6,18 @@ class DomainError(Exception, ABC):
     """Base domain exception"""
 
 
-class UserNotFound(DomainError):
-    def __init__(self, user_id: int | None = None):
-        super().__init__(f"User {user_id} not found")
-
 
 class ValidationError(DomainError):
     """Base domain validation exception"""
 
     def __init__(self, field: str, value: Optional[Any] = None):
+        self.field = field
+        self.value = value
+
         msg = f"Invalid {field}"
         if value is not None:
             msg += f": {value}"
         super().__init__(msg)
 
-
-class UserRepoError(Exception):
-    """Base user repository exception"""
-
-
-class NewsRepoError(Exception):
-    """Base news repository exception"""
+    def __str__(self):
+        return f"{self.field}: {self.value}"

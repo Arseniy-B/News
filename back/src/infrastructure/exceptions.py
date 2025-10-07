@@ -2,11 +2,9 @@ from src.domain.exceptions import (
     DomainError,
 )
 from src.domain.exceptions import (
-    UserNotFound as DomainUserNotFound,
-)
-from src.domain.exceptions import (
     ValidationError as DomainValidationError,
 )
+from src.use_cases.exceptions import UserNotFound as UseCasesUserNotFound
 
 
 class BaseInfrastructureError(DomainError):
@@ -17,5 +15,14 @@ class ValidationError(BaseInfrastructureError, DomainValidationError):
     pass
 
 
-class UserNotFound(BaseInfrastructureError, DomainUserNotFound):
+class UserNotFound(BaseInfrastructureError, UseCasesUserNotFound):
+    pass
+
+class BaseRepoError(Exception):
+    pass
+
+class NewsRepoError(BaseRepoError):
+    pass
+
+class UserRepoError(BaseRepoError):
     pass

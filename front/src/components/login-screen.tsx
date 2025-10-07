@@ -39,10 +39,9 @@ export default function LoginScreen(){
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
     try {
       const res = await login(values.username, values.password);
-      if (res.data.success === "True"){
+      if (res.data.status_code === 200){
         navigate("/news")
       }
       console.log("Пользователь:", res.data);

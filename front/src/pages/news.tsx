@@ -10,7 +10,7 @@ function PageNotFound(){
 export default function News() {
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex justify-end fixed w-full">
         <HeaderMenu />
       </div>
       <div className="flex flex-col justify-end">

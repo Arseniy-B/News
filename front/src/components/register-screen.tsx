@@ -1,6 +1,7 @@
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { Eye, EyeOff } from "lucide-react";
+import { Toaster, toast } from "sonner"
 import {
   Card,
   CardContent,
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { useNavigate } from 'react-router-dom';
-import { register } from "../services/api.ts";
+import { login, register } from "../services/api.ts";
 
 
 const formSchema = z.object({
@@ -53,10 +54,15 @@ export default function RegisterScreen(){
     console.log(values)
     try {
       const res = await register(values.username, values.email, values.password1);
-      if (res.data.success === "True"){
-        navigate("/news")
+      if (res.data.status_code === 200){
+        const login_res = await login(values.username, values.password1) 
+        if (login_res.data.status_code === 200){
+          navigate("/news")
+        }
       }
-      console.log("Пользователь:", res.data);
+      if ([422, 401, 409].includes(res.data.status_code)){
+        toast(res.data.detail);
+      }
     } catch (e) {
       console.error("Ошибка при получении пользователя");
     }
@@ -64,8 +70,10 @@ export default function RegisterScreen(){
 
   return (
     <>
+      <Toaster />
       <Card className="w-[100%] h-full rounded-none">
-        <div className="w-full flex justify-end pr-10" >
+        <div className="w-full flex lg:justify-end justify-between px-10" >
+          <Button className="lg:hidden" onClick={() => {navigate("/news")}}>News</Button> 
           <Button variant="ghost" onClick={() => navigate("/auth/sign_in")}>Sign in</Button>
         </div>
         <div className="m-[15%] my-auto">

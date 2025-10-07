@@ -44,7 +44,6 @@ class UserCreate:
         if len(self.username) > 25:
             raise ValidationError("username", "username too long")
 
-        
 
 @dataclass
 class UserLogin:
@@ -61,7 +60,9 @@ class UserLogin:
             raise ValidationError("email", "not string")
 
         if not self.username and not self.email:
-            raise ValidationError("username email", "at least one of the fields must be present")
+            raise ValidationError(
+                "username email", "at least one of the fields must be present"
+            )
         if self.email:
             if not re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", self.email):
                 raise ValidationError("email", "wrong email adress")
@@ -74,7 +75,3 @@ class UserLogin:
                 raise ValidationError("username", "username too smoll")
             if len(self.username) > 25:
                 raise ValidationError("username", "username too long")
-
-        
-
-

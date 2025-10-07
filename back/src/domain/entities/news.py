@@ -7,4 +7,3 @@ class NewsFilter(ABC):
 
 class News(ABC):
     pass
-

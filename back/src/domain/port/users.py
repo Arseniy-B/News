@@ -13,11 +13,19 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_login(self, user_login: UserLogin) -> User:
+    async def get_by_login(self, user_login: UserLogin) -> User | None:
         pass
 
     @abstractmethod
-    async def get_by_id(self, user_id: int) -> User:
+    async def get_by_id(self, user_id: int) -> User | None:
+        pass
+
+    @abstractmethod
+    def verify_password(self, password: str, password_hash: str) -> bool:
+        pass
+    
+    @abstractmethod
+    async def get_by_email(self, user_email: str) -> User | None:
         pass
 
 class AuthRepository(ABC):

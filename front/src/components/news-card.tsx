@@ -26,8 +26,6 @@ export type NewsItem = {
   content?: string | null;
 }
 
-type Status = 'ok' | 'error';
-
 interface NewsCardProps {
   news: NewsItem;
 }

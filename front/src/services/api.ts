@@ -4,6 +4,8 @@ import type { AxiosRequestConfig, AxiosResponse } from "axios";
 // tokenService.ts
 const ACCESS_TOKEN_KEY = "access_token";
 
+type Response = { status_code: number, detail: string}
+
 export const tokenService = {
   set(token: string) {
     localStorage.setItem(ACCESS_TOKEN_KEY, token);
@@ -53,7 +55,7 @@ async function request<T = any>(
 }
 
 export async function login(username: string, password: string){
-  return request<{success: string}>(
+  return request<{status_code: number; detail: Record<string, any> | any}>(
     "post",
     "http://127.0.0.1:8000/user/sign_in",
     { username: username, password: password }
@@ -61,7 +63,7 @@ export async function login(username: string, password: string){
 }
 
 export async function register(username: string, email: string, password: string){
-  return request<{success: string}>(
+  return request<Response>(
     "post",
     "http://127.0.0.1:8000/user/sign_up",
     {
