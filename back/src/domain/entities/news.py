@@ -1,13 +1,10 @@
-from dataclasses import dataclass
-from datetime import datetime
+from abc import ABC
 
 
-@dataclass
-class NewsFilter:
-    categories: list[str]
+class NewsFilter(ABC):
+    pass
 
 
-@dataclass
-class News:
-    title: str
+class News(ABC):
+    pass
 

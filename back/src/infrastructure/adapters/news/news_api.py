@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Sequence
 from urllib.parse import urlencode
 
 import aiohttp
@@ -71,7 +71,7 @@ class NewsAdapter(NewsClient):
                 continue
         raise
 
-    async def get_news_list(self, filter: NewsFilter | None) -> list[News]:
+    async def get_news_list(self, filter: NewsFilter | None) -> Sequence[News]:
         response_news = None
         url = await self.get_url(filter)
         body, status = await self._request("GET", url)

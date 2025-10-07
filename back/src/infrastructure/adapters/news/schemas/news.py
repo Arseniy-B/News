@@ -30,7 +30,7 @@ class Status(Enum):
 
 
 class NewsResponse(BaseModel):
-    news: list[ABCNews]
+    news: list[News]
     status: Status
     totalResults: int
 
