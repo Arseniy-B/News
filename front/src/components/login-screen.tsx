@@ -8,6 +8,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Toaster, toast } from "sonner"
 import {
   Form,
   FormControl,
@@ -43,8 +44,9 @@ export default function LoginScreen(){
       const res = await login(values.username, values.password);
       if (res.data.status_code === 200){
         navigate("/news")
+      } else if(res.data.status_code === 422){
+        toast(res.data.detail);
       }
-      console.log("Пользователь:", res.data);
     } catch (e) {
       console.error("Ошибка при получении пользователя");
     }
@@ -52,6 +54,7 @@ export default function LoginScreen(){
 
   return (
     <>
+      <Toaster />
       <Card className="w-[100%] h-full rounded-none">
         <div className="w-full flex lg:justify-end justify-between px-10" >
           <Button className="lg:hidden" onClick={() => {navigate("/news")}}>News</Button> 
@@ -82,7 +85,7 @@ export default function LoginScreen(){
                       <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Введите пароль"
+                        placeholder="password"
                         {...field}
                       />
                       <Button

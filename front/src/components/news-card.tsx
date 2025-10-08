@@ -6,25 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import type { NewsItem } from "../services/news-api/newsapi";
 
-
-export type Source = {
-  id?: string;
-  name?: string;
-}
-
-export type NewsItem = {
-  source: Source;
-  author?: string | null;
-  title: string;
-  description?: string | null;
-  url?: string | null;
-  urlToImage?: string | null;
-  publishedAt: Date; 
-  content?: string | null;
-}
 
 interface NewsCardProps {
   news: NewsItem;

@@ -28,7 +28,7 @@ const formSchema = z.object({
   password2: z.string().min(2).max(50),
 })
 .refine((data) => data.password1 === data.password2, {
-  path: ["password2"], // укажем, где показывать ошибку
+  path: ["password2"],
   message: "passwords must be the same",
 });
 
@@ -49,8 +49,6 @@ export default function RegisterScreen(){
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
     console.log(values)
     try {
       const res = await register(values.username, values.email, values.password1);

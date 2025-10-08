@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { getNews } from "../services/api.ts";
 import type { AxiosResponse } from 'axios';
 import type { NewsResponse, NewsItem } from "@/components/news-card";
+import { Filter } from "../services/news-api/newsapi";
+
 
 import {
   type CarouselApi,
@@ -21,9 +23,9 @@ export default function NewsList(){
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
-
   useEffect(() => {
     if (!api) return;
+    console.log(api);
     setCurrent(api.selectedScrollSnap());  
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap());
@@ -32,7 +34,7 @@ export default function NewsList(){
 
   async function addNews(){
     try {
-      const res = await getNews({country: "US"}) as AxiosResponse<NewsResponse>;
+      const res = await getNews(Filter) as AxiosResponse<NewsResponse>;
       const typedNews: NewsItem[] = res.data;
       setNews(typedNews);
     } catch (e) {
@@ -41,7 +43,7 @@ export default function NewsList(){
   }
 
   useEffect(() => { 
-    if(current === 16){
+    if(current === 10){
       addNews()
     }
   }, [current])
@@ -50,26 +52,16 @@ export default function NewsList(){
   useEffect(() => {addNews()}, []);
 
   useEffect(() => {
-    console.log(news);
     if (news){
       setCarousels(carousels => carousels ? [...carousels, news] : [news]);
     }
   }, [news]);
 
-  useEffect(() => {
-    if (carousels && carousels.length > 0) {
-      const lastIndex = carousels.length - 1;
-      const lastCarousel = document.querySelector(`[data-carousel-index="${lastIndex}"]`);
-      if (lastCarousel) {
-        // Скролл к первому NewsCard в новой карусели (найди по селектору внутри)
-        const firstNewsCard = lastCarousel.querySelector('.news-card-selector');  // Замени на класс NewsCard, напр. '[data-news-card]'
-        (firstNewsCard || lastCarousel).scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start'  // Или 'center' для центра экрана
-        });
-      }
-    }
-  }, [carousels]);
+  // useEffect(() => {
+  //   if (carousels && carousels.length > 0) {
+  //     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  //   }
+  // }, [carousels]);
 
   if (!news){
     return <div className="w-100 mx-auto">Load</div>
@@ -81,7 +73,7 @@ export default function NewsList(){
   return (
     <div className="w-100 mx-auto">
       {carousels.map((item, index) => (
-        <div key={index} data-carousel-index={index}>
+        <div key={index} data-carousel-index={index} className="h-[100vh] py-50">
           <Carousel setApi={setApi}>
             <CarouselContent>
               {item.map((n, index) => (
@@ -89,8 +81,7 @@ export default function NewsList(){
                   <NewsCard news={n} />
                 </CarouselItem>
               ))}
-              <CarouselItem>
-              </CarouselItem>
+              <CarouselItem>space</CarouselItem>
             </CarouselContent>
             <CarouselPrevious />
             <CarouselNext />
