@@ -30,14 +30,14 @@ class UserRepository(ABC):
 
 class AuthRepository(ABC):
     @abstractmethod
-    async def login(self, user):
+    def login(self, user):
         pass
 
     @abstractmethod
-    async def logout(self):
+    def logout(self):
         pass
 
     @abstractmethod
-    async def is_authenticated(self) -> bool:
+    def is_authenticated(self) -> bool:
         pass
 

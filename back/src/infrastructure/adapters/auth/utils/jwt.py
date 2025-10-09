@@ -31,7 +31,7 @@ def decode_jwt(
     return JWTPayload(**decoded)
 
 
-async def create_jwt(
+def create_jwt(
     token_type: JWTType,
     user: User,
     expire_minutes: int = config.auth_jwt.access_token_expire_minutes,
@@ -42,19 +42,28 @@ async def create_jwt(
     return encode_jwt(jwt_payload, expire_minutes=expire_minutes)
 
 
-async def create_access_token(user: User) -> str:
-    return await create_jwt(JWTType.ACCESS, user)
+def create_access_token(user: User) -> str:
+    return create_jwt(JWTType.ACCESS, user)
 
 
-async def create_refresh_token(user: User) -> str:
-    return await create_jwt(
+def create_refresh_token(user: User) -> str:
+    return create_jwt(
         JWTType.REFRESH,
         user,
         expire_minutes=config.auth_jwt.refresh_token_expire_minutes,
     )
 
+def refresh_token_info(payload: JWTPayload):
+    return UserJWT(
+        access_token=encode_jwt(
+            payload, expire_minutes=config.auth_jwt.access_token_expire_minutes
+        ),
+        refresh_token=encode_jwt(
+            payload, expire_minutes=config.auth_jwt.refresh_token_expire_minutes
+        )
+    )
 
-async def create_token_info(user: User) -> UserJWT:
-    access_token = await create_access_token(user)
-    refresh_token = await create_refresh_token(user)
+def create_token_info(user: User) -> UserJWT:
+    access_token = create_access_token(user)
+    refresh_token = create_refresh_token(user)
     return UserJWT(access_token=access_token, refresh_token=refresh_token)

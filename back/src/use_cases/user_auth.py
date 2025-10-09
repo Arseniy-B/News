@@ -21,4 +21,4 @@ async def login(
     if not user_repo.verify_password(user_login.password, user.password_hash):
         raise InvalidCredentials
 
-    await auth_repo.login(user)
+    auth_repo.login(user)

@@ -18,7 +18,7 @@ class UserAdapter(UserRepository):
         return validate_password(password, password_hash)
 
     @staticmethod
-    async def transform_to_user(user: UserModel) -> User:
+    def transform_to_user(user: UserModel) -> User:
         domain_user = User(
             id=user.id,
             username=user.username,
@@ -28,7 +28,7 @@ class UserAdapter(UserRepository):
             updated_at=user.updated_at,
         )
         if user.news_filters:
-            filters = await NewsAdapter.parse_dict_to_filters(user.news_filters)
+            filters = NewsAdapter.parse_dict_to_filters(user.news_filters)
             domain_user.news_filters = filters
         return domain_user
 
@@ -36,18 +36,18 @@ class UserAdapter(UserRepository):
         stmt = select(UserModel).where(UserModel.username == user_login.username)
         user = await self._session.scalar(stmt)
         if user:
-            return await UserAdapter.transform_to_user(user)
+            return UserAdapter.transform_to_user(user)
 
     async def get_by_email(self, user_email: str) -> User | None:
         stmt = select(UserModel).where(UserModel.email == user_email)
         user = await self._session.scalar(stmt)
         if user:
-            return await UserAdapter.transform_to_user(user)
+            return UserAdapter.transform_to_user(user)
 
     async def get_by_id(self, user_id: int) -> User | None:
         user = await self._session.get(UserModel, user_id)
         if user:
-            return await self.transform_to_user(user)
+            return self.transform_to_user(user)
 
     async def create(self, user_create: UserCreate) -> User:
         user = UserModel(
@@ -59,7 +59,7 @@ class UserAdapter(UserRepository):
         )
         self._session.add(user)
         await self._session.commit()
-        return await UserAdapter.transform_to_user(user)
+        return UserAdapter.transform_to_user(user)
 
     async def update(self, user_update: User):
         ...

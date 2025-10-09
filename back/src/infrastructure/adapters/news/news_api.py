@@ -58,7 +58,7 @@ class NewsAdapter(NewsClient):
         return url
 
     @staticmethod
-    async def parse_dict_to_filters(data: dict[str, Any]) -> BaseFilter:
+    def parse_dict_to_filters(data: dict[str, Any]) -> BaseFilter:
         schemas = BaseFilter.__subclasses__()
         if not schemas:
             raise
