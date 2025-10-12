@@ -59,3 +59,21 @@ export const Filter: TopHeadlinesFilter = {
   pageSize: 20,
   page: 1
 };
+
+const USER_FILTER_KEY = "filters"
+
+export const filterService = {
+  set(filters: TopHeadlinesFilter) {
+    const jsonFilters = JSON.stringify(filters, null, 2);
+    localStorage.setItem(USER_FILTER_KEY, jsonFilters);
+  },
+
+  get(): TopHeadlinesFilter | null {
+    const jsonFilters = localStorage.getItem(USER_FILTER_KEY);
+    if (jsonFilters){
+      const filters: TopHeadlinesFilter = JSON.parse(jsonFilters);
+      return filters;
+    }
+    return null;
+  },
+}; 

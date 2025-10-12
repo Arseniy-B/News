@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { getNews } from "../services/api.ts";
 import type { AxiosResponse } from 'axios';
-import type { NewsResponse, NewsItem } from "@/components/news-card";
-import { Filter } from "../services/news-api/newsapi";
+import type { NewsResponse } from "@/components/news-card";
+import { Filter, filterService, type NewsItem } from "../services/news-api/newsapi";
 
 
 import {
@@ -34,7 +34,8 @@ export default function NewsList(){
 
   async function addNews(){
     try {
-      const res = await getNews(Filter) as AxiosResponse<NewsResponse>;
+      const filters = filterService.get();
+      const res = await getNews(filters? filters : Filter) as AxiosResponse<NewsResponse>;
       const typedNews: NewsItem[] = res.data;
       setNews(typedNews);
     } catch (e) {

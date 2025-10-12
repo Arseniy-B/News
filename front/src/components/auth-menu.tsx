@@ -1,6 +1,6 @@
 import { tokenService } from "../services/api";
 import { Button } from "@/components/ui/button";
-import { HatGlasses } from "lucide-react";
+import { HatGlasses, LogIn } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 
@@ -20,7 +20,7 @@ export default function AuthMenu(){
 
   return (
     <>
-      <Button variant="secondary" onClick={() => {navigate("/auth/sign_in")}}>Auth</Button>
+      <Button variant="secondary" onClick={() => {navigate("/auth/sign_in")}}><LogIn /></Button>
     </>
   )
 }
