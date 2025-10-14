@@ -28,7 +28,3 @@ app.add_middleware(
 app.include_router(news_router)
 app.include_router(users_router)
 
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
-    print("aaa")

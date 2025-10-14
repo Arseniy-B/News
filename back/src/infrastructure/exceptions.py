@@ -26,3 +26,6 @@ class NewsRepoError(BaseRepoError):
 
 class UserRepoError(BaseRepoError):
     pass
+
+class AuthRepoError(BaseRepoError):
+    pass

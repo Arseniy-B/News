@@ -20,8 +20,8 @@ class AuthAdapter(AuthRepository):
     def set_user_jwt(self, user_jwt: UserJWT):
         conf = {
             "httponly": True,
-            "secure": True,  # только по HTTPS
-            "samesite": "none",  # защита от CSRF
+            "secure": True,  
+            "samesite": "none",
             "max_age": config.auth_jwt.refresh_token_expire_minutes,
             "path": "/",
         }
