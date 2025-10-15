@@ -1,0 +1,7 @@
+include:
+  - path: ./back/docker-compose.yml
+services:
+  front:
+    build: ./front
+    ports:
+      - "127.0.0.1:5173:5173"

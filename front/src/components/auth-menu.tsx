@@ -11,7 +11,7 @@ export default function AuthMenu(){
   if (token) {
     return (
       <>
-        <Button variant="outline" onClick={() => {navigate("/auth/prifile")}}>
+        <Button variant="outline" onClick={() => {navigate("/user/profile")}}>
           <HatGlasses />
         </Button>
       </>
