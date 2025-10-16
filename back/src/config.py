@@ -41,10 +41,20 @@ class BaseNewsApiSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", extra="allow")
 
 
+class RedisSettings(BaseSettings):
+    REDIS_HOST: str
+    REDIS_PORT: str
+
+    @property
+    def get_url(self):
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
+    model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", extra="allow")
+
 class Config:
     news_api = BaseNewsApiSettings()  # pyright: ignore
     db = BaseDbSettings()  # pyright: ignore
     auth_jwt = AuthJWT()
+    redis = RedisSettings() # pyright: ignore
 
 
 config = Config()  # pyright: ignore

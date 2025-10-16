@@ -8,10 +8,17 @@ services:
       POSTGRES_DB: ${DB_NAME}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
+      interval: 5s
       retries: 5
       start_period: 30s
-      timeout: 10s
+      timeout: 5s
+  redis:
+    image: redis:alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   back:
     build: .
     ports:
@@ -19,8 +26,5 @@ services:
     depends_on:
       db:
         condition: service_healthy
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
+      redis:
+        condition: service_healthy
