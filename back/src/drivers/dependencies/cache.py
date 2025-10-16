@@ -3,7 +3,7 @@ from functools import wraps
 from src.infrastructure.services.redis.redis import redis_helper
 from redis.asyncio.client import Redis
 import hashlib
-import json
+import pickle
 from pydantic import BaseModel
 
 
@@ -23,8 +23,7 @@ def args_kwargs_to_str(args, kwargs) -> str:
 def get_hash(*args, **kwargs):
     hash = hashlib.sha256(
         args_kwargs_to_str(args, kwargs).encode()
-    )
-    print(hash)
+    ).hexdigest()
     return hash
 
 
@@ -36,9 +35,9 @@ def cache(ex):
             key = f"{func.__name__}:{get_hash(*args, **kwargs)}"
             find_data = await redis.get(key)
             if find_data:
-                return JSONResponse(content={find_data})
+                return pickle.loads(find_data)
             res = await func(*args, **kwargs)
-            await redis.set(key, res, ex=ex)
+            await redis.set(key, pickle.dumps(res), ex=ex)
             return res
         return wrapper
     return decorator
