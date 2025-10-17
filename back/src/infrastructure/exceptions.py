@@ -18,7 +18,7 @@ class ValidationError(BaseInfrastructureError, DomainValidationError):
 class UserNotFound(BaseInfrastructureError, UseCasesUserNotFound):
     pass
 
-class BaseRepoError(Exception):
+class BaseRepoError(DomainError):
     pass
 
 class NewsRepoError(BaseRepoError):
@@ -28,4 +28,7 @@ class UserRepoError(BaseRepoError):
     pass
 
 class AuthRepoError(BaseRepoError):
+    pass
+
+class TokenError(AuthRepoError):
     pass

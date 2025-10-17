@@ -1,6 +1,10 @@
 from src.domain.entities.user import User, UserCreate, UserLogin
-from src.use_cases.exceptions import UserNotFound, InvalidCredentials, DublicateEntityError
 from src.domain.port.users import AuthRepository, UserRepository
+from src.use_cases.exceptions import (
+    DublicateEntityError,
+    InvalidCredentials,
+    UserNotFound,
+)
 
 
 async def registration(user_create: UserCreate, user_repo: UserRepository) -> User:
@@ -22,3 +26,9 @@ async def login(
         raise InvalidCredentials
 
     auth_repo.login(user)
+
+
+async def logout(
+    auth_repo: AuthRepository,
+):
+    await auth_repo.logout()

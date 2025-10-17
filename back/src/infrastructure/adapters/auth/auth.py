@@ -1,3 +1,4 @@
+import jwt
 from fastapi import Request, Response
 
 from src.config import config
@@ -9,6 +10,8 @@ from src.infrastructure.adapters.auth.utils.jwt import (
     decode_jwt,
     refresh_token_info,
 )
+from src.infrastructure.exceptions import AuthRepoError, TokenError
+from src.infrastructure.services.redis.redis import redis_helper
 
 
 class AuthAdapter(AuthRepository):
@@ -20,12 +23,11 @@ class AuthAdapter(AuthRepository):
     def set_user_jwt(self, user_jwt: UserJWT):
         conf = {
             "httponly": True,
-            "secure": True,  
+            "secure": True,
             "samesite": "none",
             "max_age": config.auth_jwt.refresh_token_expire_minutes,
             "path": "/",
         }
-
         self._response.set_cookie(
             key="refresh_token", value=user_jwt.refresh_token, **conf
         )
@@ -38,24 +40,24 @@ class AuthAdapter(AuthRepository):
             access_token = self._request.headers["Authorization"]
             access_token = access_token.split()
             if access_token[0] != "Bearer":
-                raise
+                raise TokenError
             access_token = access_token[1]
 
         if "refresh_token" in self._request.cookies:
             refresh_token = self._request.cookies.get("refresh_token")
-
-        if refresh_token and not access_token:
-            new_user_jwt = self.refresh_token(refresh_token)
-            self.set_user_jwt(new_user_jwt)
-            return new_user_jwt
 
         if refresh_token and access_token:
             user_jwt = UserJWT(access_token=access_token, refresh_token=refresh_token)
             return user_jwt
         return None
 
-    def refresh_token(self, refresh_token: str):
-        payload = decode_jwt(refresh_token)
+    def refresh_token(self) -> UserJWT:
+        if not self._user_jwt:
+            raise AuthRepoError
+        try:
+            payload = decode_jwt(self._user_jwt.refresh_token)
+        except jwt.PyJWTError:
+            raise TokenError
         return refresh_token_info(payload)
 
     def login(self, user: User):
@@ -63,13 +65,31 @@ class AuthAdapter(AuthRepository):
         self._user_jwt = user_jwt
         self.set_user_jwt(user_jwt)
 
-    def logout(self) -> None:
-        # todo. add to blacklist in Redis
-        ...
-
-    def is_authenticated(self) -> bool:
+    async def logout(self) -> None:
+        redis = await redis_helper.get_redis()
         if self._user_jwt:
-            payload = decode_jwt(self._user_jwt.access_token)
-            if payload:
+            await redis.set(self._user_jwt.refresh_token, "True")
+            await redis.set(self._user_jwt.access_token, "True")
+
+    async def is_authenticated(self) -> bool:
+        if not self._user_jwt:
+            return False
+
+        redis = await redis_helper.get_redis()
+        if await redis.get(self._user_jwt.refresh_token) or await redis.get(
+            self._user_jwt.access_token
+        ):
+            return False
+
+        try:
+            decode_jwt(self._user_jwt.access_token)
+            return True
+        except jwt.ExpiredSignatureError:
+            try:
+                decode_jwt(self._user_jwt.refresh_token)
+                self.set_user_jwt(self.refresh_token())
                 return True
-        return False
+            except jwt.ExpiredSignatureError:
+                return False
+        except jwt.PyJWTError:
+            raise TokenError

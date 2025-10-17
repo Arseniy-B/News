@@ -34,10 +34,9 @@ class AuthRepository(ABC):
         pass
 
     @abstractmethod
-    def logout(self):
+    async def logout(self):
         pass
 
     @abstractmethod
-    def is_authenticated(self) -> bool:
+    async def is_authenticated(self) -> bool:
         pass
-

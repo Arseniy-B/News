@@ -1,10 +1,12 @@
+from typing import Any
+
 from fastapi import APIRouter, Depends
-from src.use_cases.get_news import get_news
+
+from src.drivers.dependencies.cache import cache
 from src.infrastructure.adapters.news.news_api import NewsAdapter, engine
 from src.infrastructure.adapters.news.schemas.filter import TopHeadlinesFilter
 from src.infrastructure.services.redis.redis import redis_helper
-from src.drivers.dependencies.cache import cache
-from typing import Any
+from src.use_cases.get_news import get_news
 
 
 router = APIRouter(prefix="/news")
