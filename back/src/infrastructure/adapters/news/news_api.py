@@ -4,13 +4,17 @@ from urllib.parse import urlencode
 
 import aiohttp
 
-from src.infrastructure.exceptions import ValidationError
-from src.infrastructure.adapters.news.schemas.filter import BaseFilter
-from src.infrastructure.adapters.news.schemas.news import NewsResponse
 from src.config import config
 from src.domain.entities.news import News, NewsFilter
-from src.infrastructure.exceptions import NewsRepoError
 from src.domain.port.news_api import NewsClient
+from src.infrastructure.adapters.news.schemas.filter import BaseFilter
+from src.infrastructure.adapters.news.schemas.news import NewsResponse
+from src.infrastructure.exceptions import (
+    FilterSchemaNotFound,
+    IncompatibleDomainModelError,
+    NewsRepoError,
+    ValidationError,
+)
 
 
 class AiohttpSessionEngine:
@@ -47,21 +51,21 @@ class NewsAdapter(NewsClient):
         except Exception as e:
             raise NewsRepoError from e
 
-    async def get_url(self, filter: NewsFilter | None) -> str:
+    async def get_url(self, filter: BaseFilter | None) -> str:
         query_string = ""
         if filter:
-            query_params = {
-                k: v for k, v in filter.__dict__.items() if v is not None
-            }
+            query_params = {k: v for k, v in filter.__dict__.items() if v is not None}
             query_string = urlencode(query_params) if query_params else ""
-        url = config.news_api.BASE_API_URL + "top-headlines?" + query_string
+
+        base_url = config.news_api.BASE_API_URL
+        url = f"{base_url}{filter.get_url_part() if filter else ''}?{query_string}"
         return url
 
     @staticmethod
     def parse_dict_to_filters(data: dict[str, Any]) -> BaseFilter:
         schemas = BaseFilter.__subclasses__()
         if not schemas:
-            raise
+            raise FilterSchemaNotFound
 
         for schema in schemas:
             try:
@@ -69,9 +73,11 @@ class NewsAdapter(NewsClient):
                 return parsed_model
             except ValidationError:
                 continue
-        raise
+        raise FilterSchemaNotFound
 
     async def get_news_list(self, filter: NewsFilter | None) -> Sequence[News]:
+        if not isinstance(filter, BaseFilter):
+            raise IncompatibleDomainModelError
         response_news = None
         url = await self.get_url(filter)
         body, status = await self._request("GET", url)

@@ -24,6 +24,12 @@ class BaseRepoError(DomainError):
 class NewsRepoError(BaseRepoError):
     pass
 
+class IncompatibleDomainModelError(NewsRepoError):
+    pass
+
+class FilterSchemaNotFound(NewsRepoError):
+    pass
+
 class UserRepoError(BaseRepoError):
     pass
 
