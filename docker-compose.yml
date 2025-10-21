@@ -4,4 +4,4 @@ services:
   front:
     build: ./front
     ports:
-      - "127.0.0.1:5173:5173"
+      - "0.0.0.0:5173:5173"

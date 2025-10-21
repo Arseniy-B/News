@@ -22,7 +22,7 @@ services:
   back:
     build: .
     ports:
-      - "127.0.0.1:8000:8000"
+      - "0.0.0.0:8000:8000"
     depends_on:
       db:
         condition: service_healthy

@@ -2,16 +2,19 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
+from dataclasses import asdict
 
-from src.domain.entities.user import UserCreate, UserLogin
+from src.domain.entities.user import UserCreate, UserLogin, User
 from src.domain.exceptions import ValidationError
 from src.drivers.dependencies.user import get_auth_repo, get_user_repo
 from src.use_cases.exceptions import (
     DublicateEntityError,
     InvalidCredentials,
     UserNotFound,
+    UserNotAuthorized
 )
 from src.use_cases.user_auth import login, logout, registration
+from src.use_cases.action_on_user import get_user_data
 
 
 router = APIRouter(prefix="/user")
@@ -70,3 +73,19 @@ async def logoun_endpoint(auth_repo=Depends(get_auth_repo)):
         "status_code": status.HTTP_200_OK,
         "detail": "you have logged out of your account",
     }
+
+
+@router.get("/get")
+async def get_user_endpoint(
+    auth_repo=Depends(get_auth_repo), user_repo=Depends(get_user_repo)
+): 
+    try:
+        user = asdict(await get_user_data(user_repo, auth_repo))
+    except (UserNotFound, UserNotAuthorized):
+        return HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
+    user['password_hash'] = None
+    return user
+
+    

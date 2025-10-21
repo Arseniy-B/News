@@ -2,13 +2,14 @@ import { tokenService } from "../services/api";
 import { Button } from "@/components/ui/button";
 import { HatGlasses, LogIn } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { decodeJwt, type JwtPayload } from "../services/jwt-decode";
 
 
 export default function AuthMenu(){
-  const token = tokenService.get();
+  const isToken = tokenService.get();
   const navigate = useNavigate();
 
-  if (token) {
+  if (isToken) {
     return (
       <>
         <Button variant="outline" onClick={() => {navigate("/user/profile")}}>

@@ -44,12 +44,52 @@ export const Category = {
 } as const;
 export type Category = (typeof Category)[keyof typeof Category];
 
-export interface TopHeadlinesFilter {
-  country?: CountryCode | null;
-  category?: Category | null;
-  q?: string | null;
-  pageSize?: number; // default 20
-  page?: number;     // default 1
+export const SortBy = {
+  RELEVANCY: "relevancy",
+  POPULARITY: "popularity",
+  PUBLISHED_AT: "publishedAt",
+}
+export type SortBy = (typeof SortBy)[keyof typeof SortBy];
+
+export const Language = {
+  AR: "ar",
+  DE: "de",
+  EN: "en",
+  ES: "es",
+  FR: "fr",
+  HE: "he",
+  IT: "it",
+  NL: "nl",
+  NO: "no",
+  PT: "pt",
+  RU: "ru",
+  SV: "sv",
+  UD: "ud",
+  SH: "sh"
+}
+export type Language = (typeof Language)[keyof typeof Language];
+
+
+export interface BaseFilter{}
+
+
+export interface TopHeadlinesFilter extends BaseFilter {
+  country?: CountryCode;
+  category?: Category;
+  q?: string;
+  pageSize: number;
+  page: number;
+}
+
+
+export interface Everithing extends BaseFilter {
+  from?: Date;
+  to?: Date;
+  sortBy: SortBy;
+  language: Language;
+  q?: string;
+  pageSize?: number;
+  page?: number;
 }
 
 export const Filter: TopHeadlinesFilter = {
@@ -63,12 +103,12 @@ export const Filter: TopHeadlinesFilter = {
 const USER_FILTER_KEY = "filters"
 
 export const filterService = {
-  set(filters: TopHeadlinesFilter) {
+  set(filters: BaseFilter) {
     const jsonFilters = JSON.stringify(filters, null, 2);
     localStorage.setItem(USER_FILTER_KEY, jsonFilters);
   },
 
-  get(): TopHeadlinesFilter | null {
+  get(): BaseFilter | null {
     const jsonFilters = localStorage.getItem(USER_FILTER_KEY);
     if (jsonFilters){
       const filters: TopHeadlinesFilter = JSON.parse(jsonFilters);

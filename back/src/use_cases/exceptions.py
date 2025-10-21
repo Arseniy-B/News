@@ -5,6 +5,8 @@ class UserNotFound(BaseUseCasesError):
     def __init__(self, user_id: int | None = None):
         super().__init__(f"User {user_id} not found")
 
+class UserNotAuthorized(BaseUseCasesError):
+    pass
 
 class InvalidCredentials(BaseUseCasesError):
     def __str__(self):

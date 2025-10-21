@@ -85,3 +85,10 @@ export async function getNews(filters: any = {}){
     filters
   )
 }
+
+export async function getUser(){
+  return request(
+    "get",
+    "http://127.0.0.1:8000/user/get"
+  )
+}

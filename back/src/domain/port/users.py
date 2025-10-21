@@ -40,3 +40,7 @@ class AuthRepository(ABC):
     @abstractmethod
     async def is_authenticated(self) -> bool:
         pass
+
+    @abstractmethod
+    def get_user_id(self) -> int | None:
+        pass

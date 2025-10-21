@@ -32,7 +32,6 @@ class UserCreate:
         if not isinstance(self.email, str):
             raise ValidationError("email", "not string")
 
-        print(self.password)
         if not bool(re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", self.email)):
             raise ValidationError("email", "wrong email adress")
         if len(self.password) < 5:

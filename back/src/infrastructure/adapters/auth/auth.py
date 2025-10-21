@@ -93,3 +93,12 @@ class AuthAdapter(AuthRepository):
                 return False
         except jwt.PyJWTError:
             raise TokenError
+
+    def get_user_id(self) -> int | None:
+        if not self._user_jwt:
+            return None
+        try:
+            payload = decode_jwt(self._user_jwt.access_token)
+        except jwt.PyJWTError:
+            return None
+        return int(payload.sub)
