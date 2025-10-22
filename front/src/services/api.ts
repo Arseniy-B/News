@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
-// tokenService.ts
+
 const ACCESS_TOKEN_KEY = "access_token";
 
 
@@ -21,7 +21,8 @@ async function request<T = any>(
   method: AxiosRequestConfig["method"],
   url: string,
   data?: any,
-  headers: Record<string, string> = {}
+  credentials: boolean = false,
+  headers: Record<string, string> = {},
 ): Promise<AxiosResponse<T>> {
 
   const accessToken = tokenService.get();
@@ -34,7 +35,7 @@ async function request<T = any>(
     url,
     data,
     headers,
-    withCredentials: true,
+    withCredentials: credentials,
   };
 
   const response = await axios(config);
@@ -48,7 +49,8 @@ export async function login(username: string, password: string){
   return request<{status_code: number; detail: Record<string, any> | any}>(
     "post",
     "http://127.0.0.1:8000/user/sign_in",
-    { username: username, password: password }
+    { username: username, password: password },
+    true
   )
 }
 
@@ -60,7 +62,8 @@ export async function register(username: string, email: string, password: string
       username: username, 
       email: email,
       password: password,
-    }
+    },
+    true
   )
 }
 
@@ -78,6 +81,17 @@ export async function getNews(filters: any = {}){
 export async function getUser(){
   return request<Response>(
     "get",
-    "http://127.0.0.1:8000/user/get"
+    "http://127.0.0.1:8000/user/get",
+    null,
+    true
+  )
+}
+
+export async function refreshToken(){
+  return request<Response>(
+    "post",
+    "http://127.0.0.1:8000/user/token",
+    null,
+    true
   )
 }

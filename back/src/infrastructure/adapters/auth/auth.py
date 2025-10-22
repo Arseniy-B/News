@@ -21,6 +21,8 @@ class AuthAdapter(AuthRepository):
         self._user_jwt = self.get_user_jwt()
 
     def set_user_jwt(self, user_jwt: UserJWT):
+        if not user_jwt.refresh_token:
+            raise TokenError
         conf = {
             "httponly": True,
             "secure": True,
@@ -46,19 +48,19 @@ class AuthAdapter(AuthRepository):
         if "refresh_token" in self._request.cookies:
             refresh_token = self._request.cookies.get("refresh_token")
 
-        if refresh_token and access_token:
+        if access_token:
             user_jwt = UserJWT(access_token=access_token, refresh_token=refresh_token)
             return user_jwt
         return None
 
-    def refresh_token(self) -> UserJWT:
-        if not self._user_jwt:
-            raise AuthRepoError
+    def refresh_token(self):
+        if not self._user_jwt or not self._user_jwt.refresh_token:
+            raise TokenError
         try:
             payload = decode_jwt(self._user_jwt.refresh_token)
         except jwt.PyJWTError:
             raise TokenError
-        return refresh_token_info(payload)
+        self.set_user_jwt(refresh_token_info(payload))
 
     def login(self, user: User):
         user_jwt = create_token_info(user)
@@ -67,12 +69,13 @@ class AuthAdapter(AuthRepository):
 
     async def logout(self) -> None:
         redis = await redis_helper.get_redis()
-        if self._user_jwt:
-            await redis.set(self._user_jwt.refresh_token, "True")
-            await redis.set(self._user_jwt.access_token, "True")
+        if not self._user_jwt or not self._user_jwt.refresh_token:
+            raise TokenError
+        await redis.set(self._user_jwt.refresh_token, "True")
+        await redis.set(self._user_jwt.access_token, "True")
 
     async def is_authenticated(self) -> bool:
-        if not self._user_jwt:
+        if not self._user_jwt or not self._user_jwt.refresh_token:
             return False
 
         redis = await redis_helper.get_redis()
@@ -84,13 +87,6 @@ class AuthAdapter(AuthRepository):
         try:
             decode_jwt(self._user_jwt.access_token)
             return True
-        except jwt.ExpiredSignatureError:
-            try:
-                decode_jwt(self._user_jwt.refresh_token)
-                self.set_user_jwt(self.refresh_token())
-                return True
-            except jwt.ExpiredSignatureError:
-                return False
         except jwt.PyJWTError:
             raise TokenError
 

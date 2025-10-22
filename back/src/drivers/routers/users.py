@@ -4,6 +4,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 
+from src.infrastructure.exceptions import TokenError
 from src.domain.entities.user import User, UserCreate, UserLogin
 from src.domain.exceptions import ValidationError
 from src.drivers.dependencies.user import AuthRepoDep, UserRepoDep
@@ -84,7 +85,20 @@ async def get_user_endpoint(auth_repo: AuthRepoDep, user_repo: UserRepoDep):
         )
     user["password_hash"] = None
     return {
-        "status_code": 200,
+        "status_code": status.HTTP_200_OK,
         "data": user
     }
 
+@router.post("/token")
+async def refresh_token(auth_repo: AuthRepoDep):
+    try:
+        auth_repo.refresh_token()
+    except TokenError:
+        return {
+            "status_code": status.HTTP_401_UNAUTHORIZED,
+            "detail": "wrong token"
+        }
+    return {
+        "status_code": status.HTTP_200_OK,
+        "detail": "you are authenticated"
+    }

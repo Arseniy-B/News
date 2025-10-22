@@ -5,7 +5,7 @@ from datetime import datetime
 
 class UserJWT(BaseModel):
     access_token: str
-    refresh_token: str
+    refresh_token: str | None
 
 
 class JWTType(str, Enum):

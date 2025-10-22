@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
 import { ModeToggle } from "@/components/mode-toggle";
-import { getUser } from "../services/api";
+import { getUser, refreshToken } from "../services/api";
 import { useEffect, useState } from "react";
 import type { User } from "../services/user-api";
 import { format } from 'date-fns';
@@ -28,7 +28,14 @@ export default function Profile(){
     var res = null;
     res = await getUser();
     if( res.data.status_code === 401){
-      navigate("/auth/sign_in");
+      const new_res = await refreshToken();
+      if (new_res.data.status_code === 401){
+        navigate("/auth/sign_in");
+      }
+      res = await getUser();
+      if (res.data.status_code === 401){
+        navigate("/auth/sign_in");
+      }
     }
     setUser(res.data.data);
   }
