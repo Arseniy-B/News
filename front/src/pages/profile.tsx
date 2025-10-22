@@ -14,10 +14,21 @@ import {
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
 import { ModeToggle } from "@/components/mode-toggle";
-import { getUser, refreshToken } from "../services/api";
+import { getUser, refreshToken, logout, tokenService } from "../services/api";
 import { useEffect, useState } from "react";
 import type { User } from "../services/user-api";
 import { format } from 'date-fns';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 
 export default function Profile(){
@@ -43,9 +54,34 @@ export default function Profile(){
     addUser();
   }, [])
 
+  async function logoutHandler(){
+    const res = await logout();
+    if( res.data.status_code === 200 ){
+      tokenService.delete();
+      navigate("/auth/sign_in");
+    }
+  }
+
   return (
     <>
       <div className="fixed w-full p-5 flex justify-end">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive">Log out</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Do you want to log out of your account?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={logoutHandler} className="bg-destructive">Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <Button variant="ghost" onClick={() => navigate("/news")}>News</Button>
       </div>
       <div className="h-[100vh] grid lg:grid-cols-7">

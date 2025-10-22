@@ -1,4 +1,4 @@
-import Profile from "@/components/profile";
+import Profile from "@/pages/profile";
 import { Routes, Route } from "react-router-dom";
 
 

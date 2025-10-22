@@ -11,10 +11,12 @@ export const tokenService = {
   set(token: string) {
     localStorage.setItem(ACCESS_TOKEN_KEY, token);
   },
-
   get(): string | null {
     return localStorage.getItem(ACCESS_TOKEN_KEY);
   },
+  delete() {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+  }
 };
 
 async function request<T = any>(
@@ -91,6 +93,15 @@ export async function refreshToken(){
   return request<Response>(
     "post",
     "http://127.0.0.1:8000/user/token",
+    null,
+    true
+  )
+}
+
+export async function logout(){
+  return request<Response>(
+    "post",
+    "http://127.0.0.1:8000/user/logout",
     null,
     true
   )
