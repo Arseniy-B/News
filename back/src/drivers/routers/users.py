@@ -1,28 +1,27 @@
+from dataclasses import asdict
 from typing import Any
 
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
-from dataclasses import asdict
 
-from src.domain.entities.user import UserCreate, UserLogin, User
+from src.domain.entities.user import User, UserCreate, UserLogin
 from src.domain.exceptions import ValidationError
-from src.drivers.dependencies.user import get_auth_repo, get_user_repo
+from src.drivers.dependencies.user import AuthRepoDep, UserRepoDep
+from src.use_cases.action_on_user import get_user_data
 from src.use_cases.exceptions import (
     DublicateEntityError,
     InvalidCredentials,
+    UserNotAuthorized,
     UserNotFound,
-    UserNotAuthorized
 )
 from src.use_cases.user_auth import login, logout, registration
-from src.use_cases.action_on_user import get_user_data
-
 
 router = APIRouter(prefix="/user")
 
 
 @router.post("/sign_up")
 async def registration_endpoint(
-    user_dict_create: dict[str, Any], user_repo=Depends(get_user_repo)
+    user_dict_create: dict[str, Any], user_repo: UserRepoDep
 ):
     try:
         user_create = UserCreate(**user_dict_create)
@@ -46,8 +45,8 @@ async def registration_endpoint(
 @router.post("/sign_in")
 async def login_endpoint(
     user_dict_login: dict[str, Any],
-    user_repo=Depends(get_user_repo),
-    auth_repo=Depends(get_auth_repo),
+    user_repo: UserRepoDep,
+    auth_repo: AuthRepoDep,
 ):
     try:
         user_login = UserLogin(**user_dict_login)
@@ -67,7 +66,7 @@ async def login_endpoint(
 
 
 @router.post("/logout")
-async def logoun_endpoint(auth_repo=Depends(get_auth_repo)):
+async def logoun_endpoint(auth_repo: AuthRepoDep):
     await logout(auth_repo)
     return {
         "status_code": status.HTTP_200_OK,
@@ -76,16 +75,16 @@ async def logoun_endpoint(auth_repo=Depends(get_auth_repo)):
 
 
 @router.get("/get")
-async def get_user_endpoint(
-    auth_repo=Depends(get_auth_repo), user_repo=Depends(get_user_repo)
-): 
+async def get_user_endpoint(auth_repo: AuthRepoDep, user_repo: UserRepoDep):
     try:
         user = asdict(await get_user_data(user_repo, auth_repo))
     except (UserNotFound, UserNotAuthorized):
         return HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
-    user['password_hash'] = None
-    return user
+    user["password_hash"] = None
+    return {
+        "status_code": 200,
+        "data": user
+    }
 
-    

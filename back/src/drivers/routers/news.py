@@ -18,4 +18,7 @@ async def get_news_endpoint(filters_dict: dict[str, Any] | None):
     filters = None
     if filters_dict:
         filters = TopHeadlinesFilter(**filters_dict)
-    return await get_news(NewsAdapter(await engine.get_session()), filters)
+    return {
+        "status_code": 200,
+        "data": await get_news(NewsAdapter(await engine.get_session()), filters)
+    }

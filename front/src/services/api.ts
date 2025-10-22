@@ -5,7 +5,7 @@ import type { AxiosRequestConfig, AxiosResponse } from "axios";
 const ACCESS_TOKEN_KEY = "access_token";
 
 
-type Response = { status_code: number, detail: string}
+export type Response = { status_code: number, detail: string | null, data: any | null}
 
 export const tokenService = {
   set(token: string) {
@@ -37,22 +37,11 @@ async function request<T = any>(
     withCredentials: true,
   };
 
-  try {
-    const response = await axios(config);
-    console.log(response.headers);
-    if ('authorization' in response.headers){
-      console.log(response.headers.authorization)
-      tokenService.set(response.headers.authorization)
-    }
-    return response;
-  } catch (error: any) {
-    if (error.response) {
-      console.error("Ошибка ответа:", error.response.data);
-    } else {
-      console.error("Ошибка запроса:", error.message);
-    }
-    throw error;
+  const response = await axios(config);
+  if ('authorization' in response.headers){
+    tokenService.set(response.headers.authorization)
   }
+  return response;
 }
 
 export async function login(username: string, password: string){
@@ -79,7 +68,7 @@ export async function getNews(filters: any = {}){
   if (!("categories" in filters)){
     filters.categories = [];
   }
-  return request(
+  return request<Response>(
     "post",
     "http://127.0.0.1:8000/news/get",
     filters
@@ -87,7 +76,7 @@ export async function getNews(filters: any = {}){
 }
 
 export async function getUser(){
-  return request(
+  return request<Response>(
     "get",
     "http://127.0.0.1:8000/user/get"
   )

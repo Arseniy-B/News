@@ -49,7 +49,6 @@ export default function RegisterScreen(){
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
     try {
       const res = await register(values.username, values.email, values.password1);
       if (res.data.status_code === 200){

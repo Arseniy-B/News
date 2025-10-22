@@ -6,10 +6,11 @@ import { decodeJwt, type JwtPayload } from "../services/jwt-decode";
 
 
 export default function AuthMenu(){
-  const isToken = tokenService.get();
+  const token = tokenService.get();
+  const tokenPayload: JwtPayload | null = token ? decodeJwt(token) : null;
   const navigate = useNavigate();
 
-  if (isToken) {
+  if (tokenPayload && tokenPayload?.exp > Math.floor(Date.now() / 1000)) {
     return (
       <>
         <Button variant="outline" onClick={() => {navigate("/user/profile")}}>

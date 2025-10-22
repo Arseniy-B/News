@@ -32,3 +32,4 @@ async def logout(
     auth_repo: AuthRepository,
 ):
     await auth_repo.logout()
+

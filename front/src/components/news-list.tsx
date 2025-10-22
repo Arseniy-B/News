@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react"
 import { getNews } from "../services/api.ts";
-import type { AxiosResponse } from 'axios';
-import type { NewsResponse } from "@/components/news-card";
 import { Filter, filterService, type NewsItem } from "../services/news-api/newsapi";
 
 
@@ -13,9 +11,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-
 import NewsCard from "@/components/news-card"
-
 
 export default function NewsList(){
   const [news, setNews] = useState<NewsItem[] | null>();
@@ -25,7 +21,6 @@ export default function NewsList(){
 
   useEffect(() => {
     if (!api) return;
-    console.log(api);
     setCurrent(api.selectedScrollSnap());  
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap());
@@ -35,8 +30,8 @@ export default function NewsList(){
   async function addNews(){
     try {
       const filters = filterService.get();
-      const res = await getNews(filters? filters : Filter) as AxiosResponse<NewsResponse>;
-      const typedNews: NewsItem[] = res.data;
+      const res = await getNews(filters? filters : Filter) ;
+      const typedNews: NewsItem[] = res.data.data;
       setNews(typedNews);
     } catch (e) {
       console.error("Ошибка при получении новостей");

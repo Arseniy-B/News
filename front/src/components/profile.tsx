@@ -16,8 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import { ModeToggle } from "@/components/mode-toggle";
 import { getUser } from "../services/api";
 import { useEffect, useState } from "react";
-import type { AxiosResponse } from 'axios';
 import type { User } from "../services/user-api";
+import { format } from 'date-fns';
 
 
 export default function Profile(){
@@ -25,8 +25,12 @@ export default function Profile(){
   const [user, setUser] = useState<User | null>(null); 
 
   async function addUser(){
-    const res = await getUser() as AxiosResponse<User>;
-    setUser(res.data);
+    var res = null;
+    res = await getUser();
+    if( res.data.status_code === 401){
+      navigate("/auth/sign_in");
+    }
+    setUser(res.data.data);
   }
   useEffect(() => {
     addUser();
@@ -38,11 +42,11 @@ export default function Profile(){
         <Button variant="ghost" onClick={() => navigate("/news")}>News</Button>
       </div>
       <div className="h-[100vh] grid lg:grid-cols-7">
-        <div className="col-span-4 lg:col-span-3 pl-[10vw] bg-secondary flex flex-col font-thin text-[20px]">
+        <div className="col-span-4 lg:col-span-3 pl-[10vw] bg-secondary flex flex-col font-thin text-[15px]">
           <div className="h-[30vh]"></div>
-          <div>username: {user?.username} </div>
-          <div>email: {user?.email}</div>
-          <div>created at: </div>
+          <div>username: <div className="font-light text-[20px] mb-5">{user?.username}</div></div>
+          <div>email: <div className="font-light text-[20px] mb-5">{user?.email}</div></div>
+          <div>created at: <div className="font-light text-[20px] mb-5">{user?.created_at ? format(user.created_at, 'yyyy-MM-dd HH:mm') : 'N/A'}</div></div>
         </div>
         <div className="col-span-4">
           <Card className="w-full h-full rounded-[0]">
