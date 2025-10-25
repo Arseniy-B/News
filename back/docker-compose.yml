@@ -8,16 +8,16 @@ services:
       POSTGRES_DB: ${DB_NAME}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 5s
-      retries: 5
+      interval: 2s
       timeout: 5s
+      retries: 10
   redis:
     image: redis:alpine
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 2s
       timeout: 5s
-      retries: 5
+      retries: 10
   back:
     build: .
     ports:

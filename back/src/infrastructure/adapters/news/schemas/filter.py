@@ -1,18 +1,18 @@
+from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, field_serializer, model_validator, ConfigDict
 
-from datetime import datetime
-from src.domain.port.news_api import NewsFilter
+from src.domain.port.news_api import NewsFilters
 from src.infrastructure.exceptions import ValidationError
 
 
-class BaseFilter(BaseModel, NewsFilter):
-    class Config:
-        use_enum_values = True
+class BaseFilter(BaseModel, NewsFilters):
+    model_config = ConfigDict(use_enum_values=True)
 
     def get_url_part(self) -> str:
         return ""
+
 
 class Language(Enum):
     AR = "ar"
@@ -29,6 +29,7 @@ class Language(Enum):
     SV = "sv"
     UD = "ud"
     SH = "sh"
+
 
 class CountryCode(Enum):
     US = "US"  # США
@@ -63,15 +64,15 @@ class Category(Enum):
 
 
 class TopHeadlinesFilter(BaseFilter):
-    country: CountryCode = CountryCode.US
+    country: CountryCode | None = None 
     category: Category | None = None
     q: str | None = None
     pageSize: int = 20
     page: int = 1
 
     @model_validator(mode="after")
-    def vavlidate_all_fields(self):
-        if self.country and not CountryCode.is_valid(str(self.country)):
+    def validate_all_fields(self):
+        if self.country and not CountryCode.is_valid(str(self.country.value)):
             raise ValidationError("wrond country code")
         if self.q and len(self.q) > 1000:
             raise ValidationError("search phrase too long")
@@ -90,19 +91,48 @@ class TopHeadlinesFilter(BaseFilter):
     def get_url_part(self):
         return "top-headlines"
 
+
 class SortBy(Enum):
     RELEVANCY = "relevancy"
     POPULARITY = "popularity"
     PUBLISHED_AT = "publishedAt"
 
-class Everything(BaseFilter):
+
+class EverythingFilters(BaseFilter):
     from_: datetime | None = None
     to: datetime | None = None
-    sortBy: SortBy = SortBy.PUBLISHED_AT
-    language: Language = Language.EN
+    sortBy: SortBy | None = SortBy.PUBLISHED_AT
+    language: Language | None = Language.EN
     q: str | None = None
     pageSize: int = 20
     page: int = 1
-    
+    model_config = ConfigDict(use_enum_values=True)
+
+    @field_serializer("from_")
+    def move_to_from_(self, data: dict[str, str] | None) -> datetime | None:
+        if not data:
+            return None
+        field = None
+        try:
+            if "from" in data:
+                field = datetime.fromtimestamp(int(data["from"]))
+        except (KeyError, ValueError) as e:
+            raise ValidationError(str(e))
+        return field
+
+    @model_validator(mode="after")
+    def validate_all_fields(self):
+        print(self.sortBy)
+        if self.from_:
+            if not isinstance(self.from_, datetime):
+                raise ValidationError("wrong type of field from")
+        if self.q and len(self.q) > 1000:
+            raise ValidationError("search phrase too long")
+        if self.pageSize > 100 and self.pageSize < 1:
+            raise ValidationError("page size out of range [1, 100]")
+        if self.page < 0:
+            raise ValidationError("the page number cannot be negative")
+        return self
+
     def get_url_part(self):
         return "everything"

@@ -1,24 +1,41 @@
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, status
 
 from src.drivers.dependencies.cache import cache
-from src.infrastructure.adapters.news.news_api import NewsAdapter, engine
-from src.infrastructure.adapters.news.schemas.filter import TopHeadlinesFilter
-from src.infrastructure.services.redis.redis import redis_helper
+from src.infrastructure.adapters.news.news_api import TopHeadlinesNewsAdapter, EverythingNewsAdapter
 from src.use_cases.get_news import get_news
+from src.infrastructure.exceptions import NewsRepoError
+from src.domain.exceptions import ValidationError
 
 
 router = APIRouter(prefix="/news")
 
 
-@router.post("/get")
-@cache(60)
-async def get_news_endpoint(filters_dict: dict[str, Any] | None):
-    filters = None
-    if filters_dict:
-        filters = TopHeadlinesFilter(**filters_dict)
-    return {
-        "status_code": 200,
-        "data": await get_news(NewsAdapter(await engine.get_session()), filters)
-    }
+@router.post("/everything")
+@cache(10)
+async def get_everything_news_endpoint(filters_dict: dict[str, Any]):
+    news_adapter = await EverythingNewsAdapter.create(filters_dict)
+    try:
+        news = await get_news(news_adapter)
+    except NewsRepoError as e:
+        return {
+            "status_code": status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "detail": str(e)
+        }
+    return {"status_code": 200, "data": news}
+
+
+@router.post("/top-headlines")
+@cache(10)
+async def get_top_headlines_news_endpoint(filters_dict: dict[str, Any]):
+    news_adapter = await TopHeadlinesNewsAdapter.create(filters_dict)
+    try:
+        news = await get_news(news_adapter)
+    except NewsRepoError as e:
+        return {
+            "status_code": status.HTTP_422_UNPROCESSABLE_CONTENT,
+            "detail": str(e)
+        }
+    return {"status_code": 200, "data": news}
+

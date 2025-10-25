@@ -3,7 +3,7 @@ from fastapi import Request, Response
 
 from src.config import config
 from src.domain.entities.user import User
-from src.domain.port.users import AuthRepository
+from src.domain.port.users import AuthPort
 from src.infrastructure.adapters.auth.schemas import UserJWT
 from src.infrastructure.adapters.auth.utils.jwt import (
     create_token_info,
@@ -14,7 +14,7 @@ from src.infrastructure.exceptions import AuthRepoError, TokenError
 from src.infrastructure.services.redis.redis import redis_helper
 
 
-class AuthAdapter(AuthRepository):
+class AuthAdapter(AuthPort):
     def __init__(self, request: Request, response: Response):
         self._request = request
         self._response = response
@@ -67,7 +67,7 @@ class AuthAdapter(AuthRepository):
         self._user_jwt = user_jwt
         self.set_user_jwt(user_jwt)
 
-    async def logout(self) -> None:
+    async def logout(self):
         redis = await redis_helper.get_redis()
         if not self._user_jwt or not self._user_jwt.refresh_token:
             raise TokenError

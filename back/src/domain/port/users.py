@@ -1,9 +1,18 @@
 from abc import ABC, abstractmethod
 from src.domain.entities.user import User, UserCreate, UserLogin
+from src.domain.entities.news import NewsFilters
 
 
 
-class UserRepository(ABC):
+class UserPort(ABC):
+    @abstractmethod
+    async def set_news_filters(self, filters: NewsFilters, user_id: int):
+        ...
+
+    @abstractmethod
+    async def get_news_filters(self, user_id: int) -> NewsFilters:
+        ...
+
     @abstractmethod
     async def create(self, user_create: UserCreate) -> User:
         pass
@@ -28,7 +37,8 @@ class UserRepository(ABC):
     async def get_by_email(self, user_email: str) -> User | None:
         pass
 
-class AuthRepository(ABC):
+
+class AuthPort(ABC):
     @abstractmethod
     def login(self, user):
         pass

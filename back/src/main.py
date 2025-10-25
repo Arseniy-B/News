@@ -1,8 +1,4 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.exception_handlers import (
-    request_validation_exception_handler,
-)
-from fastapi.exceptions import RequestValidationError
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.drivers.routers.news import router as news_router
@@ -27,5 +23,4 @@ app.add_middleware(
 )
 app.include_router(news_router)
 app.include_router(users_router)
-
 

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
 import { getNews } from "../services/api.ts";
-import { Filter, filterService, type NewsItem } from "../services/news-api/newsapi";
-
-
+import { Filter, type NewsItem } from "../services/news-api/newsapi";
+import { Spinner } from "@/components/ui/spinner"
 import {
   type CarouselApi,
   Carousel,
@@ -13,7 +12,10 @@ import {
 } from "@/components/ui/carousel"
 import NewsCard from "@/components/news-card"
 
-export default function NewsList(){
+
+
+
+export default function NewsList(filter_data: Record<string, any>){
   const [news, setNews] = useState<NewsItem[] | null>();
   const [carousels, setCarousels] = useState<NewsItem[][] | null>();
   const [api, setApi] = useState<CarouselApi>();
@@ -29,11 +31,12 @@ export default function NewsList(){
 
   async function addNews(){
     try {
-      const filters = filterService.get();
+      const filters = filter_data;
       const res = await getNews(filters? filters : Filter) ;
       const typedNews: NewsItem[] = res.data.data;
       setNews(typedNews);
     } catch (e) {
+      console.log(e);
       console.error("Ошибка при получении новостей");
     }
   }
@@ -44,26 +47,23 @@ export default function NewsList(){
     }
   }, [current])
 
-
-  useEffect(() => {addNews()}, []);
-
   useEffect(() => {
     if (news){
       setCarousels(carousels => carousels ? [...carousels, news] : [news]);
     }
   }, [news]);
 
-  // useEffect(() => {
-  //   if (carousels && carousels.length > 0) {
-  //     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-  //   }
-  // }, [carousels]);
+  useEffect(() => {
+    addNews()
+  }, []);
 
-  if (!news){
-    return <div className="w-100 mx-auto">Load</div>
-  }
-  if (!carousels){
-    return <div></div>
+
+  if (!news || !carousels){
+    return (
+      <div className="w-full h-[100vh] flex justify-center pt-[40vh]">
+        <Spinner className="size-8"/> 
+      </div>
+    )
   }
 
   return (

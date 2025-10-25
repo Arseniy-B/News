@@ -19,31 +19,41 @@ export const tokenService = {
   }
 };
 
+
 async function request<T = any>(
   method: AxiosRequestConfig["method"],
   url: string,
-  data?: any,
+  data?: Record<string, any> | null,  // Более гибкий тип для params/body
   credentials: boolean = false,
   headers: Record<string, string> = {},
 ): Promise<AxiosResponse<T>> {
 
   const accessToken = tokenService.get();
-  if (accessToken){
+  if (accessToken) {
     headers.Authorization = accessToken;
   }
 
   const config: AxiosRequestConfig = {
     method,
     url,
-    data,
     headers,
     withCredentials: credentials,
   };
 
-  const response = await axios(config);
-  if ('authorization' in response.headers){
-    tokenService.set(response.headers.authorization)
+  // Для GET: data → params (query string); для остальных: data → body
+  if (method === 'get' && data) {
+    config.params = data;  // Axios сам построит ?q=val&page=1&...
+  } else {
+    config.data = data;
   }
+
+  const response = await axios(config);
+
+  // Сохраняем новый токен (headers в lowercase)
+  if (response.headers.authorization) {
+    tokenService.set(response.headers.authorization);
+  }
+
   return response;
 }
 
@@ -70,12 +80,18 @@ export async function register(username: string, email: string, password: string
 }
 
 export async function getNews(filters: any = {}){
-  if (!("categories" in filters)){
-    filters.categories = [];
-  }
+  console.log(filters);
   return request<Response>(
     "post",
     "http://127.0.0.1:8000/news/get",
+    filters
+  )
+}
+
+export async function getTopHeadlinesNews(filters: any = {}){
+  return request<Response>(
+    "post",
+    "http://127.0.0.1:8000/news/top-headlines",
     filters
   )
 }

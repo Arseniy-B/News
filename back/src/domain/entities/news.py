@@ -1,7 +1,7 @@
 from abc import ABC
 
 
-class NewsFilter(ABC):
+class NewsFilters(ABC):
     pass
 
 

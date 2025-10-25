@@ -1,40 +1,34 @@
 from http import HTTPStatus
 from typing import Any, Sequence
 from urllib.parse import urlencode
+from pydantic import ValidationError as PydanticValidationError
 
 import aiohttp
 
 from src.config import config
-from src.domain.entities.news import News, NewsFilter
-from src.domain.port.news_api import NewsClient
-from src.infrastructure.adapters.news.schemas.filter import BaseFilter
+from src.domain.entities.news import News, NewsFilters
+from src.domain.port.news_api import NewsPort
+from src.infrastructure.adapters.news.schemas.filter import (
+    BaseFilter,
+    EverythingFilters,
+    TopHeadlinesFilter,
+)
 from src.infrastructure.adapters.news.schemas.news import NewsResponse
 from src.infrastructure.exceptions import (
     FilterSchemaNotFound,
-    IncompatibleDomainModelError,
     NewsRepoError,
     ValidationError,
 )
+from src.infrastructure.services.aiohttp.engine import engine
 
 
-class AiohttpSessionEngine:
-    def __init__(self) -> None:
-        self.session: None | aiohttp.ClientSession = None
-
-    async def get_session(self) -> aiohttp.ClientSession:
-        if self.session is None:
-            connector = aiohttp.connector.TCPConnector(limit_per_host=100)
-            timeout = aiohttp.ClientTimeout(total=30)
-            self.session = aiohttp.ClientSession(connector=connector, timeout=timeout)
-        return self.session
-
-
-engine = AiohttpSessionEngine()
-
-
-class NewsAdapter(NewsClient):
-    def __init__(self, session: aiohttp.ClientSession):
+class NewsAdapter():
+    def __init__(self, session: aiohttp.ClientSession, filters: NewsFilters):
         self._session = session
+        self._filters = filters
+
+    def get_filters(self):
+        return self._filters
 
     async def _request(self, method: str, url: str, body: dict | None = None):
         try:
@@ -54,7 +48,7 @@ class NewsAdapter(NewsClient):
     async def get_url(self, filter: BaseFilter | None) -> str:
         query_string = ""
         if filter:
-            query_params = {k: v for k, v in filter.__dict__.items() if v is not None}
+            query_params = filter.model_dump(mode="json", exclude_none=True)
             query_string = urlencode(query_params) if query_params else ""
 
         base_url = config.news_api.BASE_API_URL
@@ -69,17 +63,17 @@ class NewsAdapter(NewsClient):
 
         for schema in schemas:
             try:
-                parsed_model = schema.model_validate(**data)
+                parsed_model = schema.model_validate(data)
                 return parsed_model
-            except ValidationError:
+            except (ValidationError, TypeError):
                 continue
         raise FilterSchemaNotFound
 
-    async def get_news_list(self, filter: NewsFilter | None) -> Sequence[News]:
-        if not isinstance(filter, BaseFilter):
-            raise IncompatibleDomainModelError
+    async def get_news_list(self) -> Sequence[News]:
+        if self._filters and not isinstance(self._filters, BaseFilter):
+            raise NewsRepoError("Invalid filter format")
         response_news = None
-        url = await self.get_url(filter)
+        url = await self.get_url(self._filters)
         body, status = await self._request("GET", url)
         if status == HTTPStatus.OK:
             try:
@@ -87,4 +81,33 @@ class NewsAdapter(NewsClient):
             except ValidationError:
                 raise NewsRepoError("Invalid news data format")
             return response_news.news
+        print(url, body, status)
         raise NewsRepoError(f"Unexpected status code: {status}")
+
+
+class TopHeadlinesNewsAdapter(NewsAdapter, NewsPort):
+    @staticmethod
+    async def create(filters_dict: dict[str, Any]) -> "NewsPort":
+        filters = None
+        try:
+            filters = TopHeadlinesFilter.model_validate(filters_dict)
+        except PydanticValidationError as e:
+            for error in e.errors():
+                raise ValidationError(error['msg'])
+        if not isinstance(filters, TopHeadlinesFilter):
+            raise NewsRepoError
+        return TopHeadlinesNewsAdapter(await engine.get_session(), filters)
+
+
+class EverythingNewsAdapter(NewsAdapter, NewsPort):
+    @staticmethod
+    async def create(filters_dict: dict[str, Any]) -> "NewsPort":
+        filters = None
+        try:
+            filters = EverythingFilters.model_validate(filters_dict)
+        except PydanticValidationError as e:
+            for error in e.errors():
+                raise ValidationError(error['msg'])
+        if not isinstance(filters, EverythingFilters):
+            raise ValidationError("wrong transmitted filters type")
+        return EverythingNewsAdapter(await engine.get_session(), filters)

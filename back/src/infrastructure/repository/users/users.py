@@ -5,14 +5,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructure.services.db.models import Users as UserModel
 from src.infrastructure.adapters.news.news_api import NewsAdapter
-from src.infrastructure.adapters.users.utils.password import hash_password, validate_password
+from src.infrastructure.repository.users.utils.password import hash_password, validate_password
 from src.domain.entities.user import User, UserCreate, UserLogin
-from src.domain.port.users import UserRepository
+from src.domain.port.users import UserPort
+from src.domain.entities.news import NewsFilters
 
 
-class UserAdapter(UserRepository):
+class UserRepository(UserPort):
     def __init__(self, session: AsyncSession):
         self._session = session
+
+    async def set_news_filters(self, filters: NewsFilters, user_id: int):
+        ...
+
+    async def get_news_filters(self, user_id: int) -> NewsFilters:
+        ...
 
     def verify_password(self, password: str, password_hash: str) -> bool:
         return validate_password(password, password_hash)
@@ -27,22 +34,19 @@ class UserAdapter(UserRepository):
             created_at=user.created_at,
             updated_at=user.updated_at,
         )
-        if user.news_filters:
-            filters = NewsAdapter.parse_dict_to_filters(user.news_filters)
-            domain_user.news_filters = filters
         return domain_user
 
     async def get_by_login(self, user_login: UserLogin) -> User | None:
         stmt = select(UserModel).where(UserModel.username == user_login.username)
         user = await self._session.scalar(stmt)
         if user:
-            return UserAdapter.transform_to_user(user)
+            return UserRepository.transform_to_user(user)
 
     async def get_by_email(self, user_email: str) -> User | None:
         stmt = select(UserModel).where(UserModel.email == user_email)
         user = await self._session.scalar(stmt)
         if user:
-            return UserAdapter.transform_to_user(user)
+            return UserRepository.transform_to_user(user)
 
     async def get_by_id(self, user_id: int) -> User | None:
         user = await self._session.get(UserModel, user_id)
@@ -59,7 +63,7 @@ class UserAdapter(UserRepository):
         )
         self._session.add(user)
         await self._session.commit()
-        return UserAdapter.transform_to_user(user)
+        return UserRepository.transform_to_user(user)
 
     async def update(self, user_update: User):
         ...

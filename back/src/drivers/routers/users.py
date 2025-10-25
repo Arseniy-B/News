@@ -4,10 +4,10 @@ from typing import Any
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 
-from src.infrastructure.exceptions import TokenError
 from src.domain.entities.user import User, UserCreate, UserLogin
 from src.domain.exceptions import ValidationError
 from src.drivers.dependencies.user import AuthRepoDep, UserRepoDep
+from src.infrastructure.exceptions import TokenError
 from src.use_cases.action_on_user import get_user_data
 from src.use_cases.exceptions import (
     DublicateEntityError,
@@ -68,7 +68,14 @@ async def login_endpoint(
 
 @router.post("/logout")
 async def logoun_endpoint(auth_repo: AuthRepoDep):
-    await logout(auth_repo)
+    try:
+        await logout(auth_repo)
+    except TokenError:
+        return {
+            "status_code": status.HTTP_401_UNAUTHORIZED,
+            "detail": 
+                "The token was not transferred. Most likely, you were not logged in",
+        }
     return {
         "status_code": status.HTTP_200_OK,
         "detail": "you have logged out of your account",
@@ -84,21 +91,13 @@ async def get_user_endpoint(auth_repo: AuthRepoDep, user_repo: UserRepoDep):
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
     user["password_hash"] = None
-    return {
-        "status_code": status.HTTP_200_OK,
-        "data": user
-    }
+    return {"status_code": status.HTTP_200_OK, "data": user}
+
 
 @router.post("/token")
 async def refresh_token(auth_repo: AuthRepoDep):
     try:
         auth_repo.refresh_token()
     except TokenError:
-        return {
-            "status_code": status.HTTP_401_UNAUTHORIZED,
-            "detail": "wrong token"
-        }
-    return {
-        "status_code": status.HTTP_200_OK,
-        "detail": "you are authenticated"
-    }
+        return {"status_code": status.HTTP_401_UNAUTHORIZED, "detail": "wrong token"}
+    return {"status_code": status.HTTP_200_OK, "detail": "you are authenticated"}

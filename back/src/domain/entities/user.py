@@ -2,7 +2,6 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 
-from src.domain.entities.news import NewsFilter
 from src.domain.exceptions import ValidationError
 
 
@@ -14,7 +13,6 @@ class User:
     email: str
     created_at: datetime
     updated_at: datetime
-    news_filters: NewsFilter | None = None
 
 
 @dataclass

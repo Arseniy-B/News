@@ -29,7 +29,7 @@ export default function AuthMenu(){
   if (isAuthenticated) {
     return (
       <>
-        <Button variant="outline" onClick={() => {navigate("/user/profile")}}>
+        <Button variant="ghost" onClick={() => {navigate("/user/profile")}}>
           <HatGlasses />
         </Button>
       </>
@@ -38,7 +38,7 @@ export default function AuthMenu(){
 
   return (
     <>
-      <Button variant="secondary" onClick={() => {navigate("/auth/sign_in")}}><LogIn /></Button>
+      <Button variant="ghost" onClick={() => {navigate("/auth/sign_in")}}><LogIn /></Button>
     </>
   )
 }
