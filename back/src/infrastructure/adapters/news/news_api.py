@@ -43,7 +43,7 @@ class NewsAdapter():
                     response_body = await response.json()
             return response_body, response.status
         except Exception as e:
-            raise NewsRepoError from e
+            raise NewsRepoError
 
     async def get_url(self, filter: BaseFilter | None) -> str:
         query_string = ""
@@ -88,6 +88,7 @@ class NewsAdapter():
 class TopHeadlinesNewsAdapter(NewsAdapter, NewsPort):
     @staticmethod
     async def create(filters_dict: dict[str, Any]) -> "NewsPort":
+        print(filters_dict)
         filters = None
         try:
             filters = TopHeadlinesFilter.model_validate(filters_dict)

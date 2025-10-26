@@ -12,6 +12,7 @@ import { getTopHeadlinesNews } from "../services/api";
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import React from "react";
+import NewsList from "@/components/news-list"
 
 
 const defaultFilter: Pick<TopHeadlinesFilter, 'pageSize' | 'page'> = {
@@ -21,6 +22,12 @@ const defaultFilter: Pick<TopHeadlinesFilter, 'pageSize' | 'page'> = {
 
 export default function TopHeadlinesNews(){
   const [filters, setFilters] = React.useState<TopHeadlinesFilter | null>(null);
+  const [news, setNews] = React.useState(null);
+
+  
+  async function getNews(filters: TopHeadlinesFilter){
+    await getTopHeadlinesNews(filters)
+  }
 
   return (
     <>
@@ -70,12 +77,7 @@ export default function TopHeadlinesNews(){
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
-      <Button onClick={() => {
-        async function getNews(filters: TopHeadlinesFilter){
-          await getTopHeadlinesNews(filters)
-        }
-        console.log(filters? getNews(filters): null)}
-      }></Button>
+      <NewsList filter_data={filters}/>
     </>
   )
 }

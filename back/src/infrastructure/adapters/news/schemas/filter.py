@@ -72,7 +72,7 @@ class TopHeadlinesFilter(BaseFilter):
 
     @model_validator(mode="after")
     def validate_all_fields(self):
-        if self.country and not CountryCode.is_valid(str(self.country.value)):
+        if self.country and not CountryCode.is_valid(str(self.country)):
             raise ValidationError("wrond country code")
         if self.q and len(self.q) > 1000:
             raise ValidationError("search phrase too long")

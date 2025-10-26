@@ -15,10 +15,10 @@ router = APIRouter(prefix="/news")
 @router.post("/everything")
 @cache(10)
 async def get_everything_news_endpoint(filters_dict: dict[str, Any]):
-    news_adapter = await EverythingNewsAdapter.create(filters_dict)
     try:
+        news_adapter = await EverythingNewsAdapter.create(filters_dict)
         news = await get_news(news_adapter)
-    except NewsRepoError as e:
+    except ValidationError as e:
         return {
             "status_code": status.HTTP_422_UNPROCESSABLE_CONTENT,
             "detail": str(e)
@@ -29,10 +29,10 @@ async def get_everything_news_endpoint(filters_dict: dict[str, Any]):
 @router.post("/top-headlines")
 @cache(10)
 async def get_top_headlines_news_endpoint(filters_dict: dict[str, Any]):
-    news_adapter = await TopHeadlinesNewsAdapter.create(filters_dict)
     try:
+        news_adapter = await TopHeadlinesNewsAdapter.create(filters_dict)
         news = await get_news(news_adapter)
-    except NewsRepoError as e:
+    except ValidationError as e:
         return {
             "status_code": status.HTTP_422_UNPROCESSABLE_CONTENT,
             "detail": str(e)

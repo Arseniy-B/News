@@ -80,7 +80,6 @@ export async function register(username: string, email: string, password: string
 }
 
 export async function getNews(filters: any = {}){
-  console.log(filters);
   return request<Response>(
     "post",
     "http://127.0.0.1:8000/news/get",

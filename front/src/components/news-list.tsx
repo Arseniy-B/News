@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getNews } from "../services/api.ts";
+import { getTopHeadlinesNews } from "../services/api.ts";
 import { Filter, type NewsItem } from "../services/news-api/newsapi";
 import { Spinner } from "@/components/ui/spinner"
 import {
@@ -21,6 +21,7 @@ export default function NewsList(filter_data: Record<string, any>){
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
+
   useEffect(() => {
     if (!api) return;
     setCurrent(api.selectedScrollSnap());  
@@ -31,8 +32,7 @@ export default function NewsList(filter_data: Record<string, any>){
 
   async function addNews(){
     try {
-      const filters = filter_data;
-      const res = await getNews(filters? filters : Filter) ;
+      const res = await getTopHeadlinesNews(filter_data.filter_data) ;
       const typedNews: NewsItem[] = res.data.data;
       setNews(typedNews);
     } catch (e) {
@@ -54,8 +54,8 @@ export default function NewsList(filter_data: Record<string, any>){
   }, [news]);
 
   useEffect(() => {
-    addNews()
-  }, []);
+    addNews();
+  }, [filter_data]);
 
 
   if (!news || !carousels){
