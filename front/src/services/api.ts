@@ -1,11 +1,12 @@
 import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import type { NewsItem } from "../services/news-api/newsapi";
 
 
 const ACCESS_TOKEN_KEY = "access_token";
 
 
-export type Response = { status_code: number, detail: string | null, data: any | null}
+export type Response<T> = { status_code: number, detail: string | null, data: T | null}
 
 export const tokenService = {
   set(token: string) {
@@ -67,7 +68,7 @@ export async function login(username: string, password: string){
 }
 
 export async function register(username: string, email: string, password: string){
-  return request<Response>(
+  return request<Response<any>>(
     "post",
     "http://127.0.0.1:8000/user/sign_up",
     {
@@ -80,7 +81,7 @@ export async function register(username: string, email: string, password: string
 }
 
 export async function getNews(filters: any = {}){
-  return request<Response>(
+  return request<Response<any>>(
     "post",
     "http://127.0.0.1:8000/news/get",
     filters
@@ -88,7 +89,7 @@ export async function getNews(filters: any = {}){
 }
 
 export async function getTopHeadlinesNews(filters: any = {}){
-  return request<Response>(
+  return request<Response<{news: NewsItem[], totalResults: number}>>(
     "post",
     "http://127.0.0.1:8000/news/top-headlines",
     filters
@@ -96,7 +97,7 @@ export async function getTopHeadlinesNews(filters: any = {}){
 }
 
 export async function getUser(){
-  return request<Response>(
+  return request<Response<any>>(
     "get",
     "http://127.0.0.1:8000/user/get",
     null,
@@ -105,7 +106,7 @@ export async function getUser(){
 }
 
 export async function refreshToken(){
-  return request<Response>(
+  return request<Response<any>>(
     "post",
     "http://127.0.0.1:8000/user/token",
     null,
@@ -114,7 +115,7 @@ export async function refreshToken(){
 }
 
 export async function logout(){
-  return request<Response>(
+  return request<Response<any>>(
     "post",
     "http://127.0.0.1:8000/user/logout",
     null,

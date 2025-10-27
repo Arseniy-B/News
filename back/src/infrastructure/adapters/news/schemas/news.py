@@ -1,11 +1,11 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Sequence
 
 from pydantic import BaseModel, model_validator
 
 from src.domain.exceptions import ValidationError
-from src.domain.port.news_api import News as ABCNews
+from src.domain.port.news_api import News as ABCNews, NewsResponse as ABCNewsResponse
 
 
 class Source(BaseModel):
@@ -29,7 +29,7 @@ class Status(Enum):
     ERROR = "error"
 
 
-class NewsResponse(BaseModel):
+class NewsResponse(BaseModel, ABCNewsResponse):
     news: list[News]
     status: Status
     totalResults: int

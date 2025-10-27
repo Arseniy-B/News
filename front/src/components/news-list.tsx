@@ -20,6 +20,7 @@ export default function NewsList(filter_data: Record<string, any>){
   const [carousels, setCarousels] = useState<NewsItem[][] | null>();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const [totalResults, setTotalResults] = useState<number | null>(null);
 
 
   useEffect(() => {
@@ -33,8 +34,12 @@ export default function NewsList(filter_data: Record<string, any>){
   async function addNews(){
     try {
       const res = await getTopHeadlinesNews(filter_data.filter_data) ;
-      const typedNews: NewsItem[] = res.data.data;
-      setNews(typedNews);
+      if (res.data.data){
+        console.log(res);
+        const typedNews: NewsItem[] = res.data.data.news;
+        setNews(typedNews);
+        setTotalResults(res.data.data.totalResults);
+      }
     } catch (e) {
       console.log(e);
       console.error("Ошибка при получении новостей");

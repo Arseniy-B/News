@@ -7,10 +7,9 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar"
-import { CountryCode, Category, type TopHeadlinesFilter } from "../services/news-api/newsapi"
+import { CountryCode, Category, type TopHeadlinesFilter, Filter } from "../services/news-api/newsapi"
 import { getTopHeadlinesNews } from "../services/api";
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import React from "react";
 import NewsList from "@/components/news-list"
 
@@ -21,13 +20,7 @@ const defaultFilter: Pick<TopHeadlinesFilter, 'pageSize' | 'page'> = {
 };
 
 export default function TopHeadlinesNews(){
-  const [filters, setFilters] = React.useState<TopHeadlinesFilter | null>(null);
-  const [news, setNews] = React.useState(null);
-
-  
-  async function getNews(filters: TopHeadlinesFilter){
-    await getTopHeadlinesNews(filters)
-  }
+  const [filters, setFilters] = React.useState<TopHeadlinesFilter>(Filter);
 
   return (
     <>

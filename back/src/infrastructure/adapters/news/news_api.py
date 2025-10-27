@@ -6,7 +6,7 @@ from pydantic import ValidationError as PydanticValidationError
 import aiohttp
 
 from src.config import config
-from src.domain.entities.news import News, NewsFilters
+from src.domain.entities.news import News, NewsFilters, NewsResponse as DomainNewsResponse
 from src.domain.port.news_api import NewsPort
 from src.infrastructure.adapters.news.schemas.filter import (
     BaseFilter,
@@ -69,7 +69,7 @@ class NewsAdapter():
                 continue
         raise FilterSchemaNotFound
 
-    async def get_news_list(self) -> Sequence[News]:
+    async def get_news_list(self) -> DomainNewsResponse:
         if self._filters and not isinstance(self._filters, BaseFilter):
             raise NewsRepoError("Invalid filter format")
         response_news = None
@@ -80,15 +80,13 @@ class NewsAdapter():
                 response_news = NewsResponse.model_validate(body)
             except ValidationError:
                 raise NewsRepoError("Invalid news data format")
-            return response_news.news
-        print(url, body, status)
+            return response_news
         raise NewsRepoError(f"Unexpected status code: {status}")
 
 
 class TopHeadlinesNewsAdapter(NewsAdapter, NewsPort):
     @staticmethod
     async def create(filters_dict: dict[str, Any]) -> "NewsPort":
-        print(filters_dict)
         filters = None
         try:
             filters = TopHeadlinesFilter.model_validate(filters_dict)

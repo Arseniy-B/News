@@ -122,7 +122,6 @@ class EverythingFilters(BaseFilter):
 
     @model_validator(mode="after")
     def validate_all_fields(self):
-        print(self.sortBy)
         if self.from_:
             if not isinstance(self.from_, datetime):
                 raise ValidationError("wrong type of field from")
