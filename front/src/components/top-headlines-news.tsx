@@ -6,7 +6,6 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar"
 import { CountryCode, Category, type TopHeadlinesFilter, Filter } from "../services/news-api/newsapi"
-import { getTopHeadlinesNews } from "../services/api";
 import { Input } from "@/components/ui/input"
 import React from "react";
 import NewsList from "@/components/news-list"

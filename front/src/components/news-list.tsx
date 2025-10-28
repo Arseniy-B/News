@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/pagination"
 
 
-
 interface FilterProps {
   filter: TopHeadlinesFilter;      
   setFilter: React.Dispatch<React.SetStateAction<TopHeadlinesFilter>>;
@@ -34,7 +33,7 @@ const NewsList: React.FC<FilterProps> = ({filter, setFilter}) => {
       if (res.data.data){
         const typedNews: NewsItem[] = res.data.data.news;
         setNews(typedNews);
-        setCountPages(res.data.data.totalResults / filter.pageSize);
+        setCountPages(Math.ceil(res.data.data.totalResults / filter.pageSize));
       }
     } catch (e) {
       console.log(e);
@@ -55,6 +54,34 @@ const NewsList: React.FC<FilterProps> = ({filter, setFilter}) => {
   }
 
   function getPaginatePages(i: number): number[]{
+    console.log(i, countPages, countPagesInPagination);
+    function range(a: number, b: number): number[]{
+      console.log(a, b);
+      return [...Array(b - a + 1).keys()].map(i => i + a)
+    }
+    if(countPagesInPagination <= 0 || countPages <= 0){
+      return []
+    }
+    if(countPages <= countPagesInPagination){
+      return range(1, countPages);
+    }
+    
+    var r = i + (countPagesInPagination - (Math.floor(countPagesInPagination / 2)));
+    var l = i - (Math.floor(countPagesInPagination / 2));
+
+    if(r > countPages){
+      r = countPages;
+      l -= r - countPages + 1;
+    }
+
+    if(l < 1){
+      if(r >= countPages){
+        return range(1, countPages);
+      }
+      l = 1;
+      r = countPagesInPagination
+    }
+    return range(l, r)
   }
 
   return (
@@ -71,7 +98,12 @@ const NewsList: React.FC<FilterProps> = ({filter, setFilter}) => {
           </PaginationItem>
           {getPaginatePages(filter.page).map(i => (
             <PaginationItem>
-              <PaginationLink href="#">{i}</PaginationLink>
+              <PaginationLink 
+                className={filter.page === i ? 'bg-chart-3' : ''}
+                onClick={() => {setFilter({...filter, page: i})}}
+              >
+                {i}
+              </PaginationLink>
             </PaginationItem>
           ))}
           <PaginationItem>
