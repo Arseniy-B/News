@@ -1,7 +1,7 @@
 from fastapi import Depends, Request, Response
 from typing import Annotated
 
-from src.infrastructure.adapters.auth.auth import AuthAdapter
+from src.infrastructure.adapters.auth.self_auth.auth import AuthAdapter
 from src.infrastructure.repository.users.users import UserRepository
 from src.infrastructure.services.db.db import AsyncSession, db_helper
 

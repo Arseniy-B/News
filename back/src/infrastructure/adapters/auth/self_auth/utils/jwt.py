@@ -1,7 +1,7 @@
 import jwt
 from src.config import config
 from datetime import timedelta, datetime, timezone
-from src.infrastructure.adapters.auth.schemas import UserJWT, JWTPayload, JWTType
+from src.infrastructure.adapters.auth.self_auth.schemas import UserJWT, JWTPayload, JWTType
 from src.domain.entities.user import User
 
 

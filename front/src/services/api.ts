@@ -4,6 +4,7 @@ import type { NewsItem } from "../services/news-api/newsapi";
 
 
 const ACCESS_TOKEN_KEY = "access_token";
+const BASE_URL = "http://127.0.0.1:8000";
 
 
 export type Response<T> = { status_code: number, detail: string | null, data: T | null}
@@ -35,9 +36,9 @@ async function request<T = any>(
   }
 
   const config: AxiosRequestConfig = {
-    method,
-    url,
-    headers,
+    method: method,
+    url: BASE_URL + url,
+    headers: headers,
     withCredentials: credentials,
   };
 
@@ -61,7 +62,7 @@ async function request<T = any>(
 export async function login(username: string, password: string){
   return request<{status_code: number; detail: Record<string, any> | any}>(
     "post",
-    "http://127.0.0.1:8000/user/sign_in",
+    "/user/sign_in",
     { username: username, password: password },
     true
   )
@@ -70,7 +71,7 @@ export async function login(username: string, password: string){
 export async function register(username: string, email: string, password: string){
   return request<Response<any>>(
     "post",
-    "http://127.0.0.1:8000/user/sign_up",
+    "/user/sign_up",
     {
       username: username, 
       email: email,
@@ -83,7 +84,7 @@ export async function register(username: string, email: string, password: string
 export async function getNews(filters: any = {}){
   return request<Response<any>>(
     "post",
-    "http://127.0.0.1:8000/news/get",
+    "/news/get",
     filters
   )
 }
@@ -91,7 +92,7 @@ export async function getNews(filters: any = {}){
 export async function getTopHeadlinesNews(filters: any = {}){
   return request<Response<{news: NewsItem[], totalResults: number}>>(
     "post",
-    "http://127.0.0.1:8000/news/top-headlines",
+    "/news/top-headlines",
     filters
   )
 }
@@ -99,7 +100,7 @@ export async function getTopHeadlinesNews(filters: any = {}){
 export async function getUser(){
   return request<Response<any>>(
     "get",
-    "http://127.0.0.1:8000/user/get",
+    "/user/get",
     null,
     true
   )
@@ -108,7 +109,7 @@ export async function getUser(){
 export async function refreshToken(){
   return request<Response<any>>(
     "post",
-    "http://127.0.0.1:8000/user/token",
+    "/user/token",
     null,
     true
   )
@@ -117,7 +118,7 @@ export async function refreshToken(){
 export async function logout(){
   return request<Response<any>>(
     "post",
-    "http://127.0.0.1:8000/user/logout",
+    "/user/logout",
     null,
     true
   )

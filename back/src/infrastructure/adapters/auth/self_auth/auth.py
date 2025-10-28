@@ -4,8 +4,8 @@ from fastapi import Request, Response
 from src.config import config
 from src.domain.entities.user import User
 from src.domain.port.users import AuthPort
-from src.infrastructure.adapters.auth.schemas import UserJWT
-from src.infrastructure.adapters.auth.utils.jwt import (
+from src.infrastructure.adapters.auth.self_auth.schemas import UserJWT
+from src.infrastructure.adapters.auth.self_auth.utils.jwt import (
     create_token_info,
     decode_jwt,
     refresh_token_info,

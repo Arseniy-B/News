@@ -10,26 +10,26 @@ export type NewsItem = {
   description?: string | null;
   url?: string | null;
   urlToImage?: string | null;
-  publishedAt: Date; 
+  publishedAt: string; 
   content?: string | null;
 }
 
 export const CountryCode = {
-  US: "US", // США
-  RU: "RU", // Россия
-  CN: "CN", // Китай
-  GB: "GB", // Великобритания
-  DE: "DE", // Германия
-  FR: "FR", // Франция
-  JP: "JP", // Япония
-  IN: "IN", // Индия
-  BR: "BR", // Бразилия
-  CA: "CA", // Канада
-  AU: "AU", // Австралия
-  IT: "IT", // Италия
-  ES: "ES", // Испания
-  KR: "KR", // Южная Корея
-  MX: "MX", // Мексика
+  US: "US",
+  RU: "RU",
+  CN: "CN",
+  GB: "GB",
+  DE: "DE",
+  FR: "FR",
+  JP: "JP",
+  IN: "IN",
+  BR: "BR",
+  CA: "CA", 
+  AU: "AU", 
+  IT: "IT",
+  ES: "ES",
+  KR: "KR",
+  MX: "MX",
 } as const;
 export type CountryCode = (typeof CountryCode)[keyof typeof CountryCode];
 

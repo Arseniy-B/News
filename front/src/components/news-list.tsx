@@ -1,44 +1,40 @@
 import { useEffect, useState } from "react"
 import { getTopHeadlinesNews } from "../services/api.ts";
-import { Filter, type NewsItem } from "../services/news-api/newsapi";
+import { type NewsItem, type TopHeadlinesFilter } from "../services/news-api/newsapi";
 import { Spinner } from "@/components/ui/spinner"
-import {
-  type CarouselApi,
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 import NewsCard from "@/components/news-card"
+import React from "react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 
 
+interface FilterProps {
+  filter: TopHeadlinesFilter;      
+  setFilter: React.Dispatch<React.SetStateAction<TopHeadlinesFilter>>;
+}
 
-export default function NewsList(filter_data: Record<string, any>){
+
+const NewsList: React.FC<FilterProps> = ({filter, setFilter}) => {
   const [news, setNews] = useState<NewsItem[] | null>();
-  const [carousels, setCarousels] = useState<NewsItem[][] | null>();
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [totalResults, setTotalResults] = useState<number | null>(null);
+  const [countPages, setCountPages] = useState<number>(0);
+  const countPagesInPagination = 5
 
-
-  useEffect(() => {
-    if (!api) return;
-    setCurrent(api.selectedScrollSnap());  
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-  }, [api]);
-
-  async function addNews(){
+  async function updateNews(){
     try {
-      const res = await getTopHeadlinesNews(filter_data.filter_data) ;
+      setNews(null);
+      const res = await getTopHeadlinesNews(filter) ;
       if (res.data.data){
-        console.log(res);
         const typedNews: NewsItem[] = res.data.data.news;
         setNews(typedNews);
-        setTotalResults(res.data.data.totalResults);
+        setCountPages(res.data.data.totalResults / filter.pageSize);
       }
     } catch (e) {
       console.log(e);
@@ -46,24 +42,11 @@ export default function NewsList(filter_data: Record<string, any>){
     }
   }
 
-  useEffect(() => { 
-    if(current === 10){
-      addNews()
-    }
-  }, [current])
-
   useEffect(() => {
-    if (news){
-      setCarousels(carousels => carousels ? [...carousels, news] : [news]);
-    }
-  }, [news]);
+    updateNews();
+  }, [filter]);
 
-  useEffect(() => {
-    addNews();
-  }, [filter_data]);
-
-
-  if (!news || !carousels){
+  if (!news){
     return (
       <div className="w-full h-[100vh] flex justify-center pt-[40vh]">
         <Spinner className="size-8"/> 
@@ -71,24 +54,36 @@ export default function NewsList(filter_data: Record<string, any>){
     )
   }
 
+  function getPaginatePages(i: number): number[]{
+  }
+
   return (
-    <div className="w-100 mx-auto">
-      {carousels.map((item, index) => (
-        <div key={index} data-carousel-index={index} className="h-[100vh] py-50">
-          <Carousel setApi={setApi}>
-            <CarouselContent>
-              {item.map((n, index) => (
-                <CarouselItem key={index}>
-                  <NewsCard news={n} />
-                </CarouselItem>
-              ))}
-              <CarouselItem>space</CarouselItem>
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="w-full flex flex-col">
+        {news.map((value) => (
+          <NewsCard news={value}/>
+        ))}
+      </div>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious onClick={() => {setFilter({...filter, page: filter.page-1})}}/>
+          </PaginationItem>
+          {getPaginatePages(filter.page).map(i => (
+            <PaginationItem>
+              <PaginationLink href="#">{i}</PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext onClick={() => {setFilter({...filter, page: filter.page+1})}} />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </>
   )
 }
+
+export default NewsList;

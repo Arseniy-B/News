@@ -3,8 +3,6 @@ import {
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar"
 import { CountryCode, Category, type TopHeadlinesFilter, Filter } from "../services/news-api/newsapi"
@@ -70,7 +68,7 @@ export default function TopHeadlinesNews(){
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
-      <NewsList filter_data={filters}/>
+      <NewsList filter={filters} setFilter={setFilters}/>
     </>
   )
 }
