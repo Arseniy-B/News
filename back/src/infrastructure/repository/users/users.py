@@ -3,8 +3,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.infrastructure.services.db.models import Users as UserModel
-from src.infrastructure.adapters.news.news_api import NewsAdapter
+from src.infrastructure.services.db.models import UserModel, NewsFiltersModel
 from src.infrastructure.repository.users.utils.password import hash_password, validate_password
 from src.domain.entities.user import User, UserCreate, UserLogin
 from src.domain.port.users import UserPort
@@ -15,11 +14,12 @@ class UserRepository(UserPort):
     def __init__(self, session: AsyncSession):
         self._session = session
 
+    async def get_news_filters(self, user_id: int) -> NewsFilters:
+        ...
+
     async def set_news_filters(self, filters: NewsFilters, user_id: int):
         ...
 
-    async def get_news_filters(self, user_id: int) -> NewsFilters:
-        ...
 
     def verify_password(self, password: str, password_hash: str) -> bool:
         return validate_password(password, password_hash)
