@@ -1,24 +1,50 @@
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructure.services.db.models import UserModel, NewsFiltersModel
 from src.infrastructure.repository.users.utils.password import hash_password, validate_password
+from src.infrastructure.exceptions import UserRepoError
 from src.domain.entities.user import User, UserCreate, UserLogin
-from src.domain.port.users import UserPort
 from src.domain.entities.news import NewsFilters
+from src.domain.port.users import UserPort
+from src.infrastructure.adapters.news.schemas.filter import BaseFilter
+from typing import Type
 
 
 class UserRepository(UserPort):
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def get_news_filters(self, user_id: int) -> NewsFilters:
-        ...
+    async def get_news_filters(self, user_id: int , filter_type: Type[NewsFilters] | None) -> NewsFilters:
+        stmt = select(NewsFiltersModel).where(NewsFiltersModel.user_id == user_id)
+        if filter_type:
+            stmt = stmt.where(NewsFiltersModel.filter_type == filter_type.__name__)
+        result = await self._session.execute(stmt)
+        print(result)
+        return NewsFilters()
 
     async def set_news_filters(self, filters: NewsFilters, user_id: int):
-        ...
+        if not isinstance(filters, BaseFilter):
+            raise UserRepoError
+
+        await self._session.execute(
+            delete(NewsFiltersModel).where(NewsFiltersModel.user_id == user_id, NewsFiltersModel.filter_type == filters.__class__.__name__)
+        )
+        filters_data = filters.model_dump(exclude_unset=True, exclude_none=True)
+
+        for attr_name, value in filters_data.items():
+            filter_type = value.__class__.__name__
+            data = value.model_dump() if hasattr(value, 'model_dump') else value.dict() if hasattr(value, 'dict') else vars(value)
+            new_filter = NewsFiltersModel(
+                user_id=user_id,
+                filter_type=filter_type,
+                data=data
+            )
+            self._session.add(new_filter)
+
+        await self._session.commit()
 
 
     def verify_password(self, password: str, password_hash: str) -> bool:

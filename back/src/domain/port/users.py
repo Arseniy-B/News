@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from src.domain.entities.user import User, UserCreate, UserLogin
 from src.domain.entities.news import NewsFilters
-
+from typing import Type
 
 
 class UserPort(ABC):
@@ -10,7 +10,7 @@ class UserPort(ABC):
         ...
 
     @abstractmethod
-    async def get_news_filters(self, user_id: int) -> NewsFilters:
+    async def get_news_filters(self,  user_id: int, filter_type: Type[NewsFilters] | None) -> NewsFilters:
         ...
 
     @abstractmethod
