@@ -10,40 +10,40 @@ from src.domain.entities.user import User, UserCreate, UserLogin
 from src.domain.entities.news import NewsFilters
 from src.domain.port.users import UserPort
 from src.infrastructure.adapters.news.schemas.filter import BaseFilter
-from typing import Type
+from typing import Type, Sequence
 
 
 class UserRepository(UserPort):
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def get_news_filters(self, user_id: int , filter_type: Type[NewsFilters] | None) -> NewsFilters:
+    async def get_news_filters(self, user_id: int , filter_type: Type[NewsFilters] | None = None) -> Sequence[NewsFilters]:
+        if filter_type and not issubclass(filter_type, BaseFilter):
+            raise UserRepoError
         stmt = select(NewsFiltersModel).where(NewsFiltersModel.user_id == user_id)
         if filter_type:
             stmt = stmt.where(NewsFiltersModel.filter_type == filter_type.__name__)
         result = await self._session.execute(stmt)
-        print(result)
-        return NewsFilters()
+
+        if filter_type:
+            return [filter_type.model_validate(result)]
+        return [BaseFilter.model_validate(i) for i in result]
 
     async def set_news_filters(self, filters: NewsFilters, user_id: int):
         if not isinstance(filters, BaseFilter):
             raise UserRepoError
-
         await self._session.execute(
-            delete(NewsFiltersModel).where(NewsFiltersModel.user_id == user_id, NewsFiltersModel.filter_type == filters.__class__.__name__)
+            delete(NewsFiltersModel).where(NewsFiltersModel.user_id == user_id,
+            NewsFiltersModel.filter_type == filters.__class__.__name__)
         )
-        filters_data = filters.model_dump(exclude_unset=True, exclude_none=True)
-
-        for attr_name, value in filters_data.items():
-            filter_type = value.__class__.__name__
-            data = value.model_dump() if hasattr(value, 'model_dump') else value.dict() if hasattr(value, 'dict') else vars(value)
-            new_filter = NewsFiltersModel(
-                user_id=user_id,
-                filter_type=filter_type,
-                data=data
-            )
-            self._session.add(new_filter)
-
+        filter_type = filters.__class__.__name__
+        data = filters.model_dump(exclude_unset=True, exclude_none=True)
+        new_filter = NewsFiltersModel(
+            user_id=user_id,
+            filter_type=filter_type,
+            data=data
+        )
+        self._session.add(new_filter)
         await self._session.commit()
 
 

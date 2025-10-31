@@ -2,6 +2,7 @@ from src.domain.port.users import UserPort, AuthPort
 from src.domain.port.news_api import NewsPort
 from src.domain.entities.news import News, NewsFilters
 from src.use_cases.exceptions import UserNotAuthorized, UserNotFound
+from typing import Sequence
 
 
 async def set_user_filters(
@@ -17,7 +18,7 @@ async def set_user_filters(
     return filters
 
 
-async def get_user_filters(user_port: UserPort, auth_port: AuthPort) -> NewsFilters:
+async def get_user_filters(user_port: UserPort, auth_port: AuthPort) -> Sequence[NewsFilters]:
     if not auth_port.is_authenticated:
         raise UserNotAuthorized
 
