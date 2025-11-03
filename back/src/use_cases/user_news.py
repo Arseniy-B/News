@@ -6,7 +6,7 @@ from typing import Sequence
 
 
 async def set_user_filters(
-    user_port: UserPort, news_port: NewsPort, auth_port: AuthPort
+    user_port: UserPort, auth_port: AuthPort, news_port: NewsPort
 ) -> NewsFilters:
     if not auth_port.is_authenticated:
         raise UserNotAuthorized
@@ -18,7 +18,11 @@ async def set_user_filters(
     return filters
 
 
-async def get_user_filters(user_port: UserPort, auth_port: AuthPort) -> Sequence[NewsFilters]:
+async def get_user_filters(
+    user_port: UserPort,
+    auth_port: AuthPort,
+    filter_type: type[NewsFilters] | None = None,
+) -> Sequence[NewsFilters]:
     if not auth_port.is_authenticated:
         raise UserNotAuthorized
 
@@ -26,5 +30,4 @@ async def get_user_filters(user_port: UserPort, auth_port: AuthPort) -> Sequence
     if not user_id:
         raise UserNotFound
 
-    return await user_port.get_news_filters(user_id)
-
+    return await user_port.get_news_filters(user_id, filter_type=filter_type)

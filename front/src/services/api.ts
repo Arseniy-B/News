@@ -22,104 +22,110 @@ export const tokenService = {
 };
 
 
-async function request<T = any>(
+async function request<T = any>(opts: {
   method: AxiosRequestConfig["method"],
   url: string,
   data?: Record<string, any> | null,  // Более гибкий тип для params/body
-  credentials: boolean = false,
-  headers: Record<string, string> = {},
-): Promise<AxiosResponse<T>> {
+  params?: Record<string, any>,
+  credentials: boolean,
+  headers?: Record<string, string>,
+}): Promise<AxiosResponse<T>> {
 
+  opts.headers = {}
   const accessToken = tokenService.get();
   if (accessToken) {
-    headers.Authorization = accessToken;
+    opts.headers.Authorization = accessToken;
   }
 
   const config: AxiosRequestConfig = {
-    method: method,
-    url: BASE_URL + url,
-    headers: headers,
-    withCredentials: credentials,
+    method: opts.method,
+    url: BASE_URL + opts.url,
+    headers: opts.headers,
+    withCredentials: opts.credentials,
   };
 
-  // Для GET: data → params (query string); для остальных: data → body
-  if (method === 'get' && data) {
-    config.params = data;  // Axios сам построит ?q=val&page=1&...
-  } else {
-    config.data = data;
+  config.params = opts.params || (opts.method === 'get' && opts.data ? opts.data : undefined);
+
+  if (opts.method !== 'get') {
+    config.data = opts.data;
   }
-
   const response = await axios(config);
-
-  // Сохраняем новый токен (headers в lowercase)
   if (response.headers.authorization) {
     tokenService.set(response.headers.authorization);
   }
-
   return response;
 }
 
 export async function login(username: string, password: string){
-  return request<{status_code: number; detail: Record<string, any> | any}>(
-    "post",
-    "/user/sign_in",
-    { username: username, password: password },
-    true
-  )
+  return request<{status_code: number; detail: Record<string, any> | any}>({
+    method: "post",
+    url: "/user/sign_in",
+    data: { username: username, password: password },
+    credentials: true
+  })
 }
 
 export async function register(username: string, email: string, password: string){
-  return request<Response<any>>(
-    "post",
-    "/user/sign_up",
-    {
+  return request<Response<any>>({
+    method: "post",
+    url: "/user/sign_up",
+    data: {
       username: username, 
       email: email,
       password: password,
     },
-    true
-  )
-}
-
-export async function getNews(filters: any = {}){
-  return request<Response<any>>(
-    "post",
-    "/news/get",
-    filters
-  )
+    credentials: true
+  })
 }
 
 export async function getTopHeadlinesNews(filters: any = {}){
-  return request<Response<{news: NewsItem[], totalResults: number}>>(
-    "post",
-    "/news/top-headlines",
-    filters
-  )
+  return request<Response<{news: NewsItem[], totalResults: number}>>({
+    method: "post",
+    url: "/news/top-headlines",
+    data: filters,
+    credentials: false
+  })
 }
 
 export async function getUser(){
-  return request<Response<any>>(
-    "get",
-    "/user/get",
-    null,
-    true
-  )
+  return request<Response<any>>({
+    method: "get",
+    url: "/user/get",
+    credentials: true
+  })
 }
 
 export async function refreshToken(){
-  return request<Response<any>>(
-    "post",
-    "/user/token",
-    null,
-    true
-  )
+  return request<Response<any>>({
+    method: "post",
+    url: "/user/token",
+    credentials: true
+  })
 }
 
 export async function logout(){
-  return request<Response<any>>(
-    "post",
-    "/user/logout",
-    null,
-    true
-  )
+  return request<Response<any>>({
+    method: "post",
+    url: "/user/logout",
+    credentials: true
+  })
 }
+
+export async function setUserFilters(filters: any = {}, filter_type: string){
+  return request<Response<any>>({
+    method: "post",
+    url: "/user/set-filters",
+    data: filters,
+    params: {news_type: filter_type},
+    credentials: true 
+  })
+}
+
+export async function getUserFilters(){
+  return request<Response<any>>({
+    method: "post",
+    url: "/user/get-filters",
+    credentials: true
+  })
+}
+

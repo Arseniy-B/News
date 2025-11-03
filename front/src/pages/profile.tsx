@@ -14,10 +14,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
 import { ModeToggle } from "@/components/mode-toggle";
-import { getUser, refreshToken, logout, tokenService } from "../services/api";
+import { getUser, refreshToken, logout, tokenService, getUserFilters, setUserFilters } from "../services/api";
 import { useEffect, useState } from "react";
 import type { User } from "../services/user-api";
 import { format } from 'date-fns';
+import type { BaseFilter, TopHeadlinesFilter, Everything } from '../services/news-api/newsapi';
+import { CountryCode, Category, Filter } from '../services/news-api/newsapi';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,7 +33,13 @@ import {
 } from "@/components/ui/alert-dialog"
 
 
+const defaultFilter: Pick<TopHeadlinesFilter, 'pageSize' | 'page'> = {
+  pageSize: 20, 
+  page: 1,       
+};
+
 export default function Profile(){
+  const [filters, setFilters] = useState<TopHeadlinesFilter>(Filter);
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null); 
 
@@ -50,9 +58,22 @@ export default function Profile(){
     }
     setUser(res.data.data);
   }
+
+  async function getFilters(){
+    var res = await getUserFilters();
+    console.log(res.data);
+  }
+
   useEffect(() => {
     addUser();
+    getFilters();
   }, [])
+
+  async function setCurrentUserFilters(){
+    console.log(filters)
+    var res = await setUserFilters(filters, "TopHeadlinesFilter");
+    console.log(res);
+  }
 
   async function logoutHandler(){
     const res = await logout();
@@ -61,7 +82,6 @@ export default function Profile(){
       navigate("/auth/sign_in");
     }
   }
-
   return (
     <>
       <div className="fixed w-full p-5 flex justify-end">
@@ -100,17 +120,35 @@ export default function Profile(){
               <div className="text-[30px] font-thin flex flex-col">Settings</div>
                 <div>theme: <ModeToggle /></div>
                 <div>
-                  news api:
-                  <Select>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="NewsApi" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={"NewsApi"}>{"NewsApi"}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  recommendations:<br/>
+                    TopHeadlines:
+                    <Select onValueChange={(value: CountryCode) => {
+                      setFilters({...defaultFilter, ...filters, country: value})    
+                    }}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(CountryCode).map((code) => (
+                          <SelectItem value={code}>{code}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select onValueChange={(value: Category) => {
+                      setFilters({...defaultFilter, ...filters, category: value})    
+                    }}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(Category).map((category) => (
+                          <SelectItem value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={setCurrentUserFilters}>submit</Button>
                 </div>
-            </CardContent>
+              </CardContent>
             <CardFooter></CardFooter>
           </Card>
         </div>

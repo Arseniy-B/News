@@ -15,3 +15,8 @@ services:
     depends_on:
       - db
       - redis
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080

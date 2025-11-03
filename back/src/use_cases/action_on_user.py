@@ -4,7 +4,7 @@ from src.domain.entities.user import User
 
 
 async def get_user_data(user_port: UserPort, auth_port: AuthPort) -> User:
-    if not auth_port.is_authenticated():
+    if not await auth_port.is_authenticated():
         raise UserNotAuthorized
 
     id = auth_port.get_user_id()

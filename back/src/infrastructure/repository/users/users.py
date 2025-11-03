@@ -8,8 +8,9 @@ from src.infrastructure.repository.users.utils.password import hash_password, va
 from src.infrastructure.exceptions import UserRepoError
 from src.domain.entities.user import User, UserCreate, UserLogin
 from src.domain.entities.news import NewsFilters
-from src.domain.port.users import UserPort
+from src.domain.port.users import UserPort 
 from src.infrastructure.adapters.news.schemas.filter import BaseFilter
+from src.infrastructure.adapters.news.news_api import news_types
 from typing import Type, Sequence
 
 
@@ -24,17 +25,18 @@ class UserRepository(UserPort):
         if filter_type:
             stmt = stmt.where(NewsFiltersModel.filter_type == filter_type.__name__)
         result = await self._session.execute(stmt)
-
-        if filter_type:
-            return [filter_type.model_validate(result)]
-        return [BaseFilter.model_validate(i) for i in result]
+        res: Sequence[NewsFiltersModel] = result.scalars().all()
+        filters = [news_types[i.filter_type].model_validate(i.data) for i in res]
+        return filters
 
     async def set_news_filters(self, filters: NewsFilters, user_id: int):
         if not isinstance(filters, BaseFilter):
             raise UserRepoError
         await self._session.execute(
-            delete(NewsFiltersModel).where(NewsFiltersModel.user_id == user_id,
-            NewsFiltersModel.filter_type == filters.__class__.__name__)
+            delete(NewsFiltersModel).where(
+                NewsFiltersModel.user_id == user_id,
+                NewsFiltersModel.filter_type == filters.__class__.__name__
+            )
         )
         filter_type = filters.__class__.__name__
         data = filters.model_dump(exclude_unset=True, exclude_none=True)

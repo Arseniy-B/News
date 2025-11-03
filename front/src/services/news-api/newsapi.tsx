@@ -82,7 +82,7 @@ export interface TopHeadlinesFilter extends BaseFilter {
 }
 
 
-export interface Everithing extends BaseFilter {
+export interface Everything extends BaseFilter {
   from?: Date;
   to?: Date;
   sortBy: SortBy;

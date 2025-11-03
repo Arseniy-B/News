@@ -11,8 +11,3 @@ class NewsPort(ABC):
     @abstractmethod
     def get_filters(self) -> NewsFilters:
         pass
-
-    @staticmethod
-    @abstractmethod
-    async def create(filters_dict: dict[str, Any]) -> 'NewsPort':
-        pass
