@@ -8,5 +8,6 @@ class NewsFilters(ABC):
 class News(ABC):
     pass
 
+
 class NewsResponse(ABC):
     totalResults: int

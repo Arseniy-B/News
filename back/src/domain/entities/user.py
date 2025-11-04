@@ -1,7 +1,6 @@
-import re
+from abc import ABC
 from dataclasses import dataclass
 from datetime import datetime
-from abc import ABC
 
 
 @dataclass
@@ -17,8 +16,8 @@ class User:
 @dataclass
 class UserCreate(ABC):
     pass
-  
+
+
 @dataclass
 class UserLogin(ABC):
-    pass 
-
+    pass

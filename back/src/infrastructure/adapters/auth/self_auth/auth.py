@@ -13,6 +13,7 @@ from src.infrastructure.adapters.auth.self_auth.utils.jwt import (
 from src.infrastructure.exceptions import AuthRepoError, TokenError
 from src.infrastructure.services.redis.redis import redis_helper
 
+
 class AuthAdapter(AuthPort):
     def __init__(self, request: Request, response: Response):
         self._request = request
@@ -20,7 +21,10 @@ class AuthAdapter(AuthPort):
         self._user_jwt = self.get_user_jwt()
 
     async def authenticate(self, user_login: ABCUserLogin, user_repo: UserPort) -> User:
-        ...
+        user = await user_repo.get_by_login(user_login)
+        if not user:
+            raise AuthRepoError
+        return user 
 
     def set_user_jwt(self, user_jwt: UserJWT):
         if not user_jwt.refresh_token:
