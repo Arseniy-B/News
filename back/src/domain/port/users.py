@@ -48,6 +48,10 @@ class AuthPort(ABC):
         pass
 
     @abstractmethod
+    async def authenticate(self, user_login: UserLogin, user_repo: UserPort) -> User:
+        pass
+
+    @abstractmethod
     async def is_authenticated(self) -> bool:
         pass
 

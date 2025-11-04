@@ -14,7 +14,7 @@ router = APIRouter(prefix="/news")
 
 @router.post("/get")
 @cache(10)
-async def get_everything_news_endpoint(filters_dict: dict[str, Any], news_type: str):
+async def get_news_endpoint(filters_dict: dict[str, Any], news_type: str):
     try:
         news_adapter = await create_news_adapter(news_type=news_type, data=filters_dict)
         news = await get_news(news_adapter)

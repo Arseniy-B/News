@@ -6,7 +6,6 @@ class DomainError(Exception, ABC):
     """Base domain exception"""
 
 
-
 class ValidationError(DomainError):
     """Base domain validation exception"""
 

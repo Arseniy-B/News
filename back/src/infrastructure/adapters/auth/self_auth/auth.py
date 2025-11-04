@@ -2,8 +2,8 @@ import jwt
 from fastapi import Request, Response
 
 from src.config import config
-from src.domain.entities.user import User
-from src.domain.port.users import AuthPort
+from src.domain.entities.user import User, UserLogin as ABCUserLogin
+from src.domain.port.users import AuthPort, UserPort 
 from src.infrastructure.adapters.auth.self_auth.schemas import UserJWT
 from src.infrastructure.adapters.auth.self_auth.utils.jwt import (
     create_token_info,
@@ -13,12 +13,14 @@ from src.infrastructure.adapters.auth.self_auth.utils.jwt import (
 from src.infrastructure.exceptions import AuthRepoError, TokenError
 from src.infrastructure.services.redis.redis import redis_helper
 
-
 class AuthAdapter(AuthPort):
     def __init__(self, request: Request, response: Response):
         self._request = request
         self._response = response
         self._user_jwt = self.get_user_jwt()
+
+    async def authenticate(self, user_login: ABCUserLogin, user_repo: UserPort) -> User:
+        ...
 
     def set_user_jwt(self, user_jwt: UserJWT):
         if not user_jwt.refresh_token:
