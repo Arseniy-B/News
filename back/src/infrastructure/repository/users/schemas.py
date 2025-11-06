@@ -1,7 +1,8 @@
-from typing import Optional
 from pydantic import BaseModel, EmailStr, field_validator
+from src.domain.entities.user import (
+    UserCreate as ABCUserCreate,
+)
 from src.domain.exceptions import ValidationError
-from src.domain.entities.user import UserCreate as ABCUserCreate, UserLogin as ABCUserLogin
 
 
 class UserCreate(BaseModel, ABCUserCreate):
@@ -35,39 +36,3 @@ class UserCreate(BaseModel, ABCUserCreate):
         return v
 
 
-class UserLogin(BaseModel, ABCUserLogin):
-    password: str
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-
-    @field_validator("password")
-    @classmethod
-    def validate_password(cls, v):
-        if len(v) < 5:
-            raise ValidationError("password", "the password is not strong enough")
-        if len(v) > 100:
-            raise ValidationError("password", "password too long")
-        return v
-
-    @field_validator("username")
-    @classmethod
-    def validate_username(cls, v, info):
-        if v is not None:
-            if len(v) < 2:
-                raise ValidationError("username", "username too small")
-            if len(v) > 25:
-                raise ValidationError("username", "username too long")
-        if not v and not info.data.get("email"):
-            raise ValidationError(
-                "username/email", "at least one of the fields must be present"
-            )
-        return v
-
-    @field_validator("email")
-    @classmethod
-    def validate_email(cls, v, info):
-        if not v and not info.data.get("username"):
-            raise ValidationError(
-                "username/email", "at least one of the fields must be present"
-            )
-        return v

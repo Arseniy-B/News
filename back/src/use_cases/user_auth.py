@@ -21,12 +21,3 @@ async def login(
     if not user:
         raise InvalidCredentials
     auth_repo.login(user)
-
-
-async def logout(
-    auth_repo: AuthPort,
-):
-    if not auth_repo.is_authenticated():
-        raise UserNotAuthorized
-    await auth_repo.logout()
-

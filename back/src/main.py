@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.drivers.routers.news import router as news_router
 from src.drivers.routers.users import router as users_router
+from src.drivers.routers.auth import router as auth_router
 
 origins = [
     "http://localhost:5173",
@@ -23,4 +24,5 @@ app.add_middleware(
 )
 app.include_router(news_router)
 app.include_router(users_router)
+app.include_router(auth_router)
 

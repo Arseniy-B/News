@@ -14,4 +14,5 @@ async def get_user_data(user_port: UserPort, auth_port: AuthPort) -> User:
     user = await user_port.get_by_id(id)
     if not user:
         raise UserNotFound
+    del user.password_hash
     return user

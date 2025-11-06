@@ -4,7 +4,7 @@ from fastapi import Request, Response
 from src.config import config
 from src.domain.entities.user import User, UserLogin as ABCUserLogin
 from src.domain.port.users import AuthPort, UserPort 
-from src.infrastructure.adapters.auth.self_auth.schemas import UserJWT
+from src.infrastructure.adapters.auth.self_auth.schemas import UserJWT, UserLogin
 from src.infrastructure.adapters.auth.self_auth.utils.jwt import (
     create_token_info,
     decode_jwt,
@@ -21,7 +21,11 @@ class AuthAdapter(AuthPort):
         self._user_jwt = self.get_user_jwt()
 
     async def authenticate(self, user_login: ABCUserLogin, user_repo: UserPort) -> User:
-        user = await user_repo.get_by_login(user_login)
+        if not isinstance(user_login, UserLogin):
+            raise AuthRepoError
+        if not user_login.username:
+            raise AuthRepoError
+        user = await user_repo.get_by_username(user_login.username)
         if not user:
             raise AuthRepoError
         return user 

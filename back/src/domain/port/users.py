@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.domain.entities.user import User, UserCreate, UserLogin
+from src.domain.entities.user import User, UserLogin, UserCreate
 from src.domain.entities.news import NewsFilters
 from typing import Type, Sequence
 
@@ -7,14 +7,14 @@ from typing import Type, Sequence
 class UserPort(ABC):
     @abstractmethod
     async def set_news_filters(self, filters: NewsFilters, user_id: int):
-        ...
+        pass
 
     @abstractmethod
     async def get_news_filters(self,  user_id: int, filter_type: Type[NewsFilters] | None = None) -> Sequence[NewsFilters]:
-        ...
+        pass
 
     @abstractmethod
-    async def create(self, user_create: UserCreate) -> User:
+    async def create(self, user_create: UserCreate):
         pass
 
     @abstractmethod
@@ -22,7 +22,7 @@ class UserPort(ABC):
         pass
 
     @abstractmethod
-    async def get_by_login(self, user_login: UserLogin) -> User | None:
+    async def get_by_username(self, username: str) -> User | None:
         pass
 
     @abstractmethod

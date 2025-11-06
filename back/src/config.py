@@ -44,21 +44,35 @@ class RedisSettings(BaseSettings):
     @property
     def get_url(self):
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
+
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", extra="allow")
 
 
-class MailSettings(BaseSettings):
-    MAIL_ADDRESS: str
-    MAIL_PASSWORD: str
+class EmailSettings(BaseSettings):
+    EMAIL_ADDRESS: str
+    EMAIL_PASSWORD: str
     SMTP_SERVER: str
+
+    def get_otp_content(self, otp) -> str:
+        return f"Your login code: {otp}"
+
+    def get_welcome_content(self) -> str:
+        return "welcome"
+
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", extra="allow")
+
+
+class Otp(BaseSettings):
+    expire_minutes: int = 5
+
 
 class Config:
     news_api = BaseNewsApiSettings()  # pyright: ignore
     db = BaseDbSettings()  # pyright: ignore
     auth_jwt = AuthJWT()
-    redis = RedisSettings() # pyright: ignore
-    mail = MailSettings() # pyright: ignore
+    redis = RedisSettings()  # pyright: ignore
+    email = EmailSettings()  # pyright: ignore
+    otp = Otp()
 
 
 config = Config()  # pyright: ignore
