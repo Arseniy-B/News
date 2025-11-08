@@ -1,9 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status 
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.drivers.routers.news import router as news_router
 from src.drivers.routers.users import router as users_router
 from src.drivers.routers.auth import router as auth_router
+
+from src.use_cases.exceptions import UserNotAuthorized, ClienValidationError
+from src.drivers.exception_handlers import unprocessable, validation, unauthorized
+
 
 origins = [
     "http://localhost:5173",
@@ -12,7 +17,14 @@ origins = [
     "http://127.0.0.1:5173",
 ]
 
-app = FastAPI()
+
+app = FastAPI(
+    exception_handlers={
+        RequestValidationError: unprocessable.handler,
+        # ClienValidationError: validation.handler,
+        UserNotAuthorized: unauthorized.handler,
+    }
+)
 
 app.add_middleware(
     CORSMiddleware,

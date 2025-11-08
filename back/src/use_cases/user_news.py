@@ -25,9 +25,5 @@ async def get_user_filters(
 ) -> Sequence[NewsFilters]:
     if not auth_port.is_authenticated:
         raise UserNotAuthorized
-
     user_id = auth_port.get_user_id()
-    if not user_id:
-        raise UserNotFound
-
     return await user_port.get_news_filters(user_id, filter_type=filter_type)

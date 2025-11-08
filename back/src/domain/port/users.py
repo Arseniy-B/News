@@ -22,11 +22,11 @@ class UserPort(ABC):
         pass
 
     @abstractmethod
-    async def get_by_username(self, username: str) -> User | None:
+    async def get_by_username(self, username: str) -> User:
         pass
 
     @abstractmethod
-    async def get_by_id(self, user_id: int) -> User | None:
+    async def get_by_id(self, user_id: int) -> User:
         pass
 
     @abstractmethod
@@ -34,7 +34,7 @@ class UserPort(ABC):
         pass
     
     @abstractmethod
-    async def get_by_email(self, user_email: str) -> User | None:
+    async def get_by_email(self, user_email: str) -> User:
         pass
 
 
@@ -56,5 +56,5 @@ class AuthPort(ABC):
         pass
 
     @abstractmethod
-    def get_user_id(self) -> int | None:
+    def get_user_id(self) -> int:
         pass

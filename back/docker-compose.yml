@@ -20,3 +20,12 @@ services:
     restart: always
     ports:
       - 8080:8080
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis

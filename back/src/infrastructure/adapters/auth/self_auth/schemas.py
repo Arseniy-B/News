@@ -10,7 +10,7 @@ from src.domain.entities.user import (
 from src.domain.entities.user import (
     UserLogin as ABCUserLogin,
 )
-from src.domain.exceptions import ValidationError
+from src.use_cases.exceptions import ClienValidationError
 
 
 class UserJWT(BaseModel):
@@ -40,16 +40,16 @@ class UserLogin(BaseModel, ABCUserLogin):
     @classmethod
     def validate_password(cls, v):
         if len(v) < 5:
-            raise ValidationError("password", "the password is not strong enough")
+            raise ClienValidationError("password", "the password is not strong enough")
         if len(v) > 100:
-            raise ValidationError("password", "password too long")
+            raise ClienValidationError("password", "password too long")
         return v
 
     @field_validator("username")
     @classmethod
     def validate_username(cls, v, info):
         if len(v) < 2:
-            raise ValidationError("username", "username too small")
+            raise ClienValidationError("username", "username too small")
         if len(v) > 25:
-            raise ValidationError("username", "username too long")
+            raise ClienValidationError("username", "username too long")
         return v

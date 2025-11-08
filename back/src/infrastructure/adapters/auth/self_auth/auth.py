@@ -3,21 +3,23 @@ from fastapi import Request, Response
 
 from src.config import config
 from src.domain.entities.user import User, UserLogin as ABCUserLogin
-from src.domain.port.users import AuthPort, UserPort 
+from src.domain.port.users import AuthPort, UserPort
 from src.infrastructure.adapters.auth.self_auth.schemas import UserJWT, UserLogin
 from src.infrastructure.adapters.auth.self_auth.utils.jwt import (
     create_token_info,
     decode_jwt,
     refresh_token_info,
 )
-from src.infrastructure.exceptions import AuthRepoError, TokenError
+from src.infrastructure.repository.users.users import hash_password, validate_password
+from src.infrastructure.exceptions import AuthRepoError, TokenError, UserNotFound
 from src.infrastructure.services.redis.redis import redis_helper
+from src.use_cases.exceptions import UserNotAuthorized, InvalidCredentials
 
 
 class AuthAdapter(AuthPort):
     def __init__(self, request: Request, response: Response):
-        self._request = request
-        self._response = response
+        self._request: Request = request
+        self._response: Response = response
         self._user_jwt = self.get_user_jwt()
 
     async def authenticate(self, user_login: ABCUserLogin, user_repo: UserPort) -> User:
@@ -27,8 +29,11 @@ class AuthAdapter(AuthPort):
             raise AuthRepoError
         user = await user_repo.get_by_username(user_login.username)
         if not user:
-            raise AuthRepoError
-        return user 
+            raise UserNotFound
+
+        if not validate_password(user_login.password, user.password_hash):
+            raise InvalidCredentials
+        return user
 
     def set_user_jwt(self, user_jwt: UserJWT):
         if not user_jwt.refresh_token:
@@ -93,18 +98,17 @@ class AuthAdapter(AuthPort):
             self._user_jwt.access_token
         ):
             return False
-
         try:
             decode_jwt(self._user_jwt.access_token)
             return True
         except jwt.PyJWTError:
             raise TokenError
 
-    def get_user_id(self) -> int | None:
+    def get_user_id(self) -> int:
         if not self._user_jwt:
-            return None
+            raise UserNotAuthorized
         try:
             payload = decode_jwt(self._user_jwt.access_token)
         except jwt.PyJWTError:
-            return None
+            raise UserNotAuthorized
         return int(payload.sub)

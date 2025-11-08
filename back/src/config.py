@@ -43,7 +43,7 @@ class RedisSettings(BaseSettings):
 
     @property
     def get_url(self):
-        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
 
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", extra="allow")
 

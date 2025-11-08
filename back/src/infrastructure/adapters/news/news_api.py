@@ -95,8 +95,8 @@ class NewsAdapter(NewsPort):
 
 
 news_types: dict[str, type[BaseFilter]] = {
-    "TopHeadlinesFilter": TopHeadlinesFilter,
-    "EverythingFilters": EverythingFilters,
+    "TopHeadlines": TopHeadlinesFilter,
+    "Everything": EverythingFilters,
 }
 
 async def create_news_adapter(news_type: str, data: dict[str, Any]):
