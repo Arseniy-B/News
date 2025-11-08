@@ -76,11 +76,9 @@ export default function Profile(){
   }
 
   async function logoutHandler(){
-    const res = await logout();
-    if( res.data.status_code === 200 ){
-      tokenService.delete();
-      navigate("/auth/sign_in");
-    }
+    await logout();
+    tokenService.delete();
+    navigate("/auth/sign_in");
   }
   return (
     <>

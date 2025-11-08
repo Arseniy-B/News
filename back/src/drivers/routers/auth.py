@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, status, Body
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, EmailStr
@@ -63,9 +63,14 @@ async def login_by_email_endpoint(
 
 @router.post("/email/send_otp")
 async def seend_top_endpoint(
-    email: EmailStr,
     auth_repo: EmailAuthRepoDep,
+    user_repo: UserRepoDep,
+    email: EmailStr = Body(..., embed=True)
 ):
+    try:
+        await user_repo.get_by_email(email)
+    except UserNotFound:
+        return JSONResponse({"detail": "email does not exist"}, status_code=status.HTTP_422_UNPROCESSABLE_CONTENT)
     await auth_repo.send_code(email)
     return {"detail": "a one-time password has been sent"}
 

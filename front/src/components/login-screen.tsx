@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { useNavigate } from 'react-router-dom';
-import { login } from "../services/api.ts";
+import { login_by_password } from "../services/api.ts";
+import { AxiosError } from 'axios';
 
 
 const formSchema = z.object({
@@ -26,6 +27,7 @@ const formSchema = z.object({
   password: z.string().min(2).max(50),
 })
 type FormData = z.infer<typeof formSchema>;
+
 
 export default function LoginScreen(){
   const navigate = useNavigate();
@@ -41,14 +43,14 @@ export default function LoginScreen(){
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const res = await login(values.username, values.password);
-      if (res.data.status_code === 200){
-        navigate("/news")
-      } else if(res.data.status_code === 422){
-        toast(res.data.detail);
-      }
+      await login_by_password(values.username, values.password);
+      navigate("/news")
     } catch (e) {
-      console.error("Ошибка при получении пользователя");
+      if (e instanceof AxiosError){
+        if(e.response?.status === 422){
+          toast(e.response?.data.detail);
+        }
+      }
     }
   }
 
@@ -107,11 +109,11 @@ export default function LoginScreen(){
                 <Button type="submit" className="w-full">
                   Login
                 </Button>
-                <Button  variant="outline" className="w-full">
-                  Login with Google
-                </Button>
               </form>
             </Form>
+            <Button onClick={() => {navigate("/auth/sign_in/email")}} variant="outline" className="w-full mt-10">
+              Login by email
+            </Button>
           </CardContent>
         </div>
       </Card>

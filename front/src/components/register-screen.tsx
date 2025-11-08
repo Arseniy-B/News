@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { useNavigate } from 'react-router-dom';
-import { login, register } from "../services/api.ts";
+import { login_by_password, register } from "../services/api.ts";
+import { AxiosError } from 'axios';
 
 
 const formSchema = z.object({
@@ -50,18 +51,15 @@ export default function RegisterScreen(){
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const res = await register(values.username, values.email, values.password1);
-      if (res.data.status_code === 200){
-        const login_res = await login(values.username, values.password1) 
-        if (login_res.data.status_code === 200){
-          navigate("/news")
-        }
-      }
-      if ([422, 401, 409].includes(res.data.status_code)){
-        toast(res.data.detail);
-      }
+      await register(values.username, values.email, values.password1);
+      await login_by_password(values.username, values.password1) 
+      navigate("/news")
     } catch (e) {
-      console.error("Ошибка при получении пользователя");
+      if (e instanceof AxiosError){
+        if ([422, 401, 409].includes(e.response?.data.status_code)){
+          toast(e.response?.data.detail);
+        }  
+      }
     }
   }
 
@@ -159,9 +157,6 @@ export default function RegisterScreen(){
                 <div className="w-full mt-10 h-[0.1px] bg-muted rounded-full" />
                 <Button type="submit" className="w-full">
                   sign up
-                </Button>
-                <Button  variant="outline" className="w-full">
-                  Sign up with Google
                 </Button>
               </form>
             </Form>

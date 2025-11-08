@@ -1,5 +1,6 @@
 import LoginScreen from "@/components/login-screen";
 import RegisterScreen from "@/components/register-screen";
+import EmailLoginScreen from "@/components/email-login-screen";
 import { Routes, Route } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +22,7 @@ export default function Auth(){
       <div>
         <Routes>
           <Route path="/sign_in" element={<LoginScreen />} />
+          <Route path="/sign_in/email" element={<EmailLoginScreen />} />
           <Route path="/sign_up" element={<RegisterScreen />} />
           <Route path="*" element={<NotFound/>} />
         </Routes>

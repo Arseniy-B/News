@@ -7,7 +7,7 @@ const ACCESS_TOKEN_KEY = "access_token";
 const BASE_URL = "http://127.0.0.1:8000";
 
 
-export type Response<T> = { status_code: number, detail: string | null, data: T | null}
+export type Response<T> = { detail: string | null, data: T | null}
 
 export const tokenService = {
   set(token: string) {
@@ -56,19 +56,36 @@ async function request<T = any>(opts: {
   return response;
 }
 
-export async function login(username: string, password: string){
+export async function login_by_password(username: string, password: string){
   return request<{status_code: number; detail: Record<string, any> | any}>({
     method: "post",
-    url: "/user/sign_in",
+    url: "/auth/sign_in",
     data: { username: username, password: password },
     credentials: true
+  })
+}
+
+export async function login_by_email(email: string, code: string){
+  return request<{status_code: number; detail: Record<string, any> | any}>({
+    method: "post",
+    url: "/auth/email/sign_in",
+    data: { email: email, code: code},
+    credentials: true
+  })
+}
+export async function send_otp(email: string){
+  return request({
+    method: "post",
+    url: "/auth/email/send_otp",
+    data: {email: email},
+    credentials: false
   })
 }
 
 export async function register(username: string, email: string, password: string){
   return request<Response<any>>({
     method: "post",
-    url: "/user/sign_up",
+    url: "/auth/sign_up",
     data: {
       username: username, 
       email: email,
@@ -81,8 +98,9 @@ export async function register(username: string, email: string, password: string
 export async function getTopHeadlinesNews(filters: any = {}){
   return request<Response<{news: NewsItem[], totalResults: number}>>({
     method: "post",
-    url: "/news/top-headlines",
+    url: "/news/get",
     data: filters,
+    params: {news_type: "TopHeadlines"},
     credentials: false
   })
 }
@@ -98,7 +116,7 @@ export async function getUser(){
 export async function refreshToken(){
   return request<Response<any>>({
     method: "post",
-    url: "/user/token",
+    url: "/auth/token",
     credentials: true
   })
 }
@@ -106,7 +124,7 @@ export async function refreshToken(){
 export async function logout(){
   return request<Response<any>>({
     method: "post",
-    url: "/user/logout",
+    url: "/auth/logout",
     credentials: true
   })
 }
