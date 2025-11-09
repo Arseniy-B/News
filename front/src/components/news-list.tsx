@@ -39,11 +39,11 @@ const NewsList = <T extends BaseFilter>({
       if (res.data.data){
         const typedNews: NewsItem[] = res.data.data.news;
         setNews(typedNews);
+        if (res.data.data.totalResults > 100){res.data.data.totalResults = 100}
         setCountPages(Math.ceil(res.data.data.totalResults / filter.pageSize));
       }
     } catch (e) {
       console.log(e);
-      console.error("Ошибка при получении новостей");
     }
   }
 
@@ -60,7 +60,6 @@ const NewsList = <T extends BaseFilter>({
   }
 
   function getPaginatePages(i: number): number[]{
-    console.log(i, countPages, countPagesInPagination);
     function range(a: number, b: number): number[]{
       console.log(a, b);
       return [...Array(b - a + 1).keys()].map(i => i + a)
@@ -100,7 +99,11 @@ const NewsList = <T extends BaseFilter>({
       <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious onClick={() => {setFilter({...filter, page: filter.page-1})}}/>
+            <PaginationPrevious onClick={() => {
+              if (filter.page > 1){
+                setFilter({...filter, page: filter.page-1})
+              }
+            }}/>
           </PaginationItem>
           {getPaginatePages(filter.page).map(i => (
             <PaginationItem>
@@ -113,15 +116,15 @@ const NewsList = <T extends BaseFilter>({
             </PaginationItem>
           ))}
           <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext onClick={() => {setFilter({...filter, page: filter.page+1})}} />
+            <PaginationNext onClick={() => {
+              if(filter.page < countPages){
+                setFilter({...filter, page: filter.page+1})
+              }
+            }} />
           </PaginationItem>
         </PaginationContent>
       </Pagination>
     </>
   )
 }
-
 export default NewsList;

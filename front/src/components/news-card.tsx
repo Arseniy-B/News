@@ -1,9 +1,9 @@
 import {
   Card,
-  CardContent,
 } from "@/components/ui/card"
 import type { NewsItem } from "../services/news-api/newsapi";
 import React from "react";
+import { Badge } from "@/components/ui/badge"
 
 
 interface NewsCardProps {
@@ -13,6 +13,7 @@ interface NewsCardProps {
 
 export default function NewsCard({ news }: NewsCardProps){
   const [passedTime, setPassedTime] = React.useState<string>("");
+  const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     const pastDate = new Date(news.publishedAt);
@@ -37,12 +38,29 @@ export default function NewsCard({ news }: NewsCardProps){
 
   return (
     <div className="w-full min-h-[90vh] p-[5%] content-center">
-      <Card className="m-auto p-[10%]">
-        <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">{news.title}</h4>
-        <p className="leading-7 [&:not(:first-child)]:mt-6">{news.content}</p>
-        <p className="leading-7 [&:not(:first-child)]:mt-6">{news.description}</p>
-        <div>published {passedTime} ago</div>
-        <div>{news.author}</div>
+      <Card className="m-auto p-[2%]">
+        <div>
+          <img
+            src={news.urlToImage? news.urlToImage: ""}
+            className={`w-full h-48 transition-opacity duration-300 ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            loading="lazy"  // Lazy loading для производительности
+            onLoad={() => setIsLoaded(true)}  // Скрыть skeleton при загрузке
+            onError={() => setIsLoaded(true)}  // На ошибку тоже скрыть (показать пустой)
+          />
+        </div>
+        <div className="flex flex-col content-between p-[8%]">
+          <div className="mb-10">
+            <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">{news.title}</h4>
+            <p className="leading-7 [&:not(:first-child)]:mt-6">{news.content}</p>
+            <p className="leading-7 [&:not(:first-child)]:mt-6">{news.description}</p>
+          </div>
+          <div>
+            <Badge variant="default">published {passedTime} ago</Badge>
+            <Badge variant="secondary">{news.author}</Badge>
+          </div>
+        </div>
       </Card>
     </div>
   )
