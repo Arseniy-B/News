@@ -25,7 +25,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   InputOTP,
@@ -55,17 +54,17 @@ export default function EmailLoginScreen(){
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // try {
-      // await send_otp(values.email);
+    try {
+      await send_otp(values.email);
       setEmailAddress(values.email);
       setOpen(true);
-    // } catch (e) {
-    //   if (e instanceof AxiosError){
-    //     if(e.response?.status === 422){
-    //       toast(e.response?.data.detail);
-    //     }
-    //   }
-    // }
+    } catch (e) {
+      if (e instanceof AxiosError){
+        if(e.response?.status === 422){
+          toast(e.response?.data.detail);
+        }
+      }
+    }
   }
 
   async function otpHandler(otpValue: string){

@@ -103,6 +103,7 @@ class EverythingFilters(BaseFilter):
     to: datetime | None = None
     sortBy: SortBy | None = SortBy.PUBLISHED_AT
     language: Language | None = Language.EN
+    domains: str
     q: str | None = None
     pageSize: int = 20
     page: int = 1

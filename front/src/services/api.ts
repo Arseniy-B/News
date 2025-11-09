@@ -105,6 +105,16 @@ export async function getTopHeadlinesNews(filters: any = {}){
   })
 }
 
+export async function getEverythingNews(filters: any={}){
+  return request<Response<{news: NewsItem[], totalResults: number}>>({
+    method: "post",
+    url: "/news/get",
+    data: filters,
+    params: {news_type: "Everything"},
+    credentials: false
+  })
+}
+
 export async function getUser(){
   return request<Response<any>>({
     method: "get",

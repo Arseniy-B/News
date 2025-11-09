@@ -1,5 +1,4 @@
-import { Routes, Route } from "react-router-dom";
-import HeaderMenu from "@/components/header-menu";
+import { Routes, Route, useLocation } from "react-router-dom";
 import AuthMenu from "@/components/auth-menu";
 import EverythingNews from "@/components/everything-news";
 import TopHeadlinesNews from "@/components/top-headlines-news";
@@ -8,12 +7,10 @@ import { Link } from "react-router-dom"
 import {
   NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
 } from "@/components/ui/navigation-menu"
 import { ModeToggle } from "@/components/mode-toggle";
 
@@ -22,14 +19,19 @@ function PageNotFound(){
   return <>NotFound</>
 }
 
+
 export default function News() {
+  const location = useLocation();  
+  const currentPath = location.pathname;
+  const currentMode = currentPath.includes('everything') ? 'Everything' : 'Top Headlines';  
+
   return (
     <>
       <div className="flex justify-end fixed gap-2 p-2 w-full z-50 bg-background">
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Modes</NavigationMenuTrigger>
+              <NavigationMenuTrigger>{currentMode}</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <NavigationMenuLink asChild>
                   <Link to="/news/everything">Everything</Link>

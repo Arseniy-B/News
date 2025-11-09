@@ -70,7 +70,10 @@ export const Language = {
 export type Language = (typeof Language)[keyof typeof Language];
 
 
-export interface BaseFilter{}
+export interface BaseFilter{
+  pageSize: number;
+  page: number;
+}
 
 
 export interface TopHeadlinesFilter extends BaseFilter {
@@ -81,15 +84,15 @@ export interface TopHeadlinesFilter extends BaseFilter {
   page: number;
 }
 
-
-export interface Everything extends BaseFilter {
+export interface EverythingFilter extends BaseFilter {
   from?: Date;
   to?: Date;
   sortBy: SortBy;
   language: Language;
+  domains: string
   q?: string;
-  pageSize?: number;
-  page?: number;
+  pageSize: number;
+  page: number;
 }
 
 export const Filter: TopHeadlinesFilter = {

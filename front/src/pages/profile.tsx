@@ -18,7 +18,7 @@ import { getUser, refreshToken, logout, tokenService, getUserFilters, setUserFil
 import { useEffect, useState } from "react";
 import type { User } from "../services/user-api";
 import { format } from 'date-fns';
-import type { BaseFilter, TopHeadlinesFilter, Everything } from '../services/news-api/newsapi';
+import type { BaseFilter, TopHeadlinesFilter, EverythingFilter } from '../services/news-api/newsapi';
 import { CountryCode, Category, Filter } from '../services/news-api/newsapi';
 import {
   AlertDialog,
@@ -31,6 +31,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { AxiosError } from "axios";
 
 
 const defaultFilter: Pick<TopHeadlinesFilter, 'pageSize' | 'page'> = {
@@ -45,18 +46,33 @@ export default function Profile(){
 
   async function addUser(){
     var res = null;
+    try{
     res = await getUser();
-    if( res.data.status_code === 401){
-      const new_res = await refreshToken();
-      if (new_res.data.status_code === 401){
-        navigate("/auth/sign_in");
-      }
-      res = await getUser();
-      if (res.data.status_code === 401){
-        navigate("/auth/sign_in");
+    } catch (e) {
+      if(e instanceof AxiosError){
+        try{
+          await refreshToken();
+        }catch(e){
+          if(e instanceof AxiosError){
+            if (e.response?.status === 401){
+              navigate("/auth/sign_in/");
+            }
+            try{
+              res = await getUser();
+            } catch (e) {
+              if(e instanceof AxiosError){
+                if(e.response?.status === 401){
+                  navigate("/auth/sign_in/");
+                }
+              }
+            }
+          }
+        }
       }
     }
-    setUser(res.data.data);
+    if(res){
+      setUser(res.data.data);
+    }
   }
 
   async function getFilters(){
@@ -71,7 +87,7 @@ export default function Profile(){
 
   async function setCurrentUserFilters(){
     console.log(filters)
-    var res = await setUserFilters(filters, "TopHeadlinesFilter");
+    var res = await setUserFilters(filters, "TopHeadlines");
     console.log(res);
   }
 

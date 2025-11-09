@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
-import { getTopHeadlinesNews } from "../services/api.ts";
-import { type NewsItem, type TopHeadlinesFilter } from "../services/news-api/newsapi";
+import { type Response } from "../services/api.ts";
+import { type NewsItem, type BaseFilter } from "../services/news-api/newsapi";
 import { Spinner } from "@/components/ui/spinner"
 import NewsCard from "@/components/news-card"
 import React from "react";
@@ -13,15 +13,21 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import { type AxiosResponse } from "axios";
 
 
-interface FilterProps {
-  filter: TopHeadlinesFilter;      
-  setFilter: React.Dispatch<React.SetStateAction<TopHeadlinesFilter>>;
+interface FilterProps<T extends BaseFilter> {
+  filter: T;      
+  setFilter: React.Dispatch<React.SetStateAction<T>>;
+  getNews: (news: T) => Promise<AxiosResponse<Response<{news: NewsItem[], totalResults: number}>>>
 }
 
 
-const NewsList: React.FC<FilterProps> = ({filter, setFilter}) => {
+const NewsList = <T extends BaseFilter>({
+  filter,
+  setFilter,
+  getNews
+}: FilterProps<T>): React.JSX.Element => {
   const [news, setNews] = useState<NewsItem[] | null>();
   const [countPages, setCountPages] = useState<number>(0);
   const countPagesInPagination = 5
@@ -29,7 +35,7 @@ const NewsList: React.FC<FilterProps> = ({filter, setFilter}) => {
   async function updateNews(){
     try {
       setNews(null);
-      const res = await getTopHeadlinesNews(filter) ;
+      const res = await getNews(filter);
       if (res.data.data){
         const typedNews: NewsItem[] = res.data.data.news;
         setNews(typedNews);

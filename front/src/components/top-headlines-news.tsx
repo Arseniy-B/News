@@ -9,6 +9,9 @@ import { CountryCode, Category, type TopHeadlinesFilter, Filter } from "../servi
 import { Input } from "@/components/ui/input"
 import React from "react";
 import NewsList from "@/components/news-list"
+import { getTopHeadlinesNews } from "@/services/api";
+import { Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 
 const defaultFilter: Pick<TopHeadlinesFilter, 'pageSize' | 'page'> = {
@@ -18,17 +21,35 @@ const defaultFilter: Pick<TopHeadlinesFilter, 'pageSize' | 'page'> = {
 
 export default function TopHeadlinesNews(){
   const [filters, setFilters] = React.useState<TopHeadlinesFilter>(Filter);
+  const [q, setQ] = React.useState<string>("");
+
+  const qHandler = () => {
+    const Filter: TopHeadlinesFilter = {
+      ...defaultFilter,
+      ...filters,
+      q: q,
+    };
+    setFilters(Filter);
+  }
 
   return (
     <>
-      <Input onChange={(e) => {
-        const Filter: TopHeadlinesFilter = {
-          ...defaultFilter,
-          ...filters,
-          q: e.target.value,
-        };
-        setFilters(Filter);
-      }} className="mb-3" placeholder="search" />
+      <div className="mb-10">
+        <p className="text-muted-foreground text-sm">
+        This endpoint provides live top and breaking headlines for a country, specific category in a country, single source, or multiple sources. You can also search with keywords. Articles are sorted by the earliest date published first.
+        </p>
+      </div>
+      <div className="flex">
+        <Input 
+          onChange={(e) => {setQ(e.target.value);}} 
+          onKeyDown={(e) => {
+            if (e.key === "Enter"){qHandler()}
+          }} 
+          className="mb-3 mr-3" 
+          placeholder="search" 
+        />
+        <Button variant="outline" size="icon" onClick={qHandler}><Search/></Button>
+      </div>
       <Menubar className="w-min">
         <MenubarMenu>
           <MenubarTrigger>
@@ -67,7 +88,7 @@ export default function TopHeadlinesNews(){
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
-      <NewsList filter={filters} setFilter={setFilters}/>
+      <NewsList filter={filters} setFilter={setFilters} getNews={getTopHeadlinesNews}/>
     </>
   )
 }

@@ -91,6 +91,7 @@ class NewsAdapter(NewsPort):
             except ValidationError:
                 raise NewsRepoError("Invalid news data format")
             return response_news
+        print(body, status)
         raise NewsRepoError(f"Unexpected status code: {status}")
 
 
