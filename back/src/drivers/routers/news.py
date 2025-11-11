@@ -5,11 +5,13 @@ from fastapi.responses import JSONResponse
 import json
 
 from src.drivers.dependencies.cache import cache
-from src.infrastructure.adapters.news.news_api import create_news_adapter
 from src.use_cases.get_news import get_news
 from src.infrastructure.exceptions import NewsRepoError
 from src.domain.exceptions import ValidationError
 from src.infrastructure.adapters.news.schemas.news import NewsResponse
+from src.infrastructure.repository.news.news import NewsFilterRepository
+from src.drivers.dependencies.news_api import NewsDep
+
 
 
 router = APIRouter(prefix="/news")
@@ -17,10 +19,15 @@ router = APIRouter(prefix="/news")
 
 @router.post("/get")
 @cache(10)
-async def get_news_endpoint(filters_dict: dict[str, Any], news_type: str):
+async def get_news_endpoint(
+    filter_dict: dict[str, Any],
+    filter_type: str,
+    news_adapter: NewsDep,
+):
+    filter_model = NewsFilterRepository.get_filter_by_type(filter_type)
+    news_filter = filter_model.model_validate(filter_dict)
     try:
-        news_adapter = await create_news_adapter(news_type=news_type, data=filters_dict)
-        news = await get_news(news_adapter)
+        news = await get_news(news_adapter, news_filter)
     except (ValidationError, NewsRepoError) as e:
         return {
             "status_code": status.HTTP_422_UNPROCESSABLE_CONTENT,

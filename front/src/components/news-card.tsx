@@ -4,6 +4,13 @@ import {
 import type { NewsItem } from "../services/news-api/newsapi";
 import React from "react";
 import { Badge } from "@/components/ui/badge"
+import { ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 
 interface NewsCardProps {
@@ -13,7 +20,6 @@ interface NewsCardProps {
 
 export default function NewsCard({ news }: NewsCardProps){
   const [passedTime, setPassedTime] = React.useState<string>("");
-  const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     const pastDate = new Date(news.publishedAt);
@@ -42,12 +48,12 @@ export default function NewsCard({ news }: NewsCardProps){
         <div>
           <img
             src={news.urlToImage? news.urlToImage: ""}
-            className={`w-full h-48 transition-opacity duration-300 ${
-              isLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-            loading="lazy"  // Lazy loading для производительности
-            onLoad={() => setIsLoaded(true)}  // Скрыть skeleton при загрузке
-            onError={() => setIsLoaded(true)}  // На ошибку тоже скрыть (показать пустой)
+            className={'w-full transition-opacity duration-300 opacity-100 h-0'}
+            loading="lazy"  
+            onLoad={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.style.height = "calc(var(--spacing) * 48)"
+            }}
           />
         </div>
         <div className="flex flex-col content-between p-[8%]">
@@ -56,9 +62,36 @@ export default function NewsCard({ news }: NewsCardProps){
             <p className="leading-7 [&:not(:first-child)]:mt-6">{news.content}</p>
             <p className="leading-7 [&:not(:first-child)]:mt-6">{news.description}</p>
           </div>
-          <div>
-            <Badge variant="default">published {passedTime} ago</Badge>
-            <Badge variant="secondary">{news.author}</Badge>
+          <div className="flex justify-between">
+            <div>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge className="m-1" variant="default">published {passedTime} ago</Badge>
+                </TooltipTrigger>
+                <TooltipContent>time after publication</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge className="m-1" variant="secondary">{news.author}</Badge>
+                </TooltipTrigger>
+                <TooltipContent>author</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge className="m-1" variant="destructive">{news.source.name}</Badge>
+                </TooltipTrigger>
+                <TooltipContent>source</TooltipContent>
+              </Tooltip>
+            </div>
+            <div>
+              {news.url &&
+                <Button 
+                   onClick={() => {if(news.url){window.open(news.url, '_blank', 'noopener,noreferrer')}}} variant="ghost" size="icon"
+                >
+                  <ExternalLink/>
+                </Button>
+              }
+            </div>
           </div>
         </div>
       </Card>

@@ -22,7 +22,7 @@ class UserModel(Base):
     updated_at: Mapped[datetime] = mapped_column(nullable=False)
 
 
-class NewsFiltersModel(Base):
+class NewsFilterModel(Base):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("usermodel.id"))
     filter_type: Mapped[str] = mapped_column(nullable=False)
     data: Mapped[dict | None] = mapped_column(JSON)

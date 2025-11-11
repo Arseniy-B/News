@@ -6,6 +6,8 @@ class UserNotFound(BaseUseCasesError):
     def __init__(self, user_id: int | None = None):
         super().__init__(f"User {user_id} not found")
 
+class FilterNotFound(BaseUseCasesError):
+    pass
 
 class UserNotAuthorized(BaseUseCasesError):
     pass

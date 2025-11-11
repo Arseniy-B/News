@@ -3,12 +3,13 @@ from enum import Enum
 
 from pydantic import BaseModel, field_serializer, model_validator, ConfigDict
 
-from src.domain.port.news_api import NewsFilters
+from src.domain.port.news_api import NewsFilter
 from src.infrastructure.exceptions import ValidationError
 
 
-class BaseFilter(BaseModel, NewsFilters):
+class BaseFilter(BaseModel, NewsFilter):
     model_config = ConfigDict(use_enum_values=True)
+    filter_type: str = ""
 
     def get_url_part(self) -> str:
         return ""
@@ -64,6 +65,7 @@ class Category(Enum):
 
 
 class TopHeadlinesFilter(BaseFilter):
+    filter_type: str = "TopHeadlines"
     country: CountryCode | None = None 
     category: Category | None = None
     q: str | None = None
@@ -98,7 +100,8 @@ class SortBy(Enum):
     PUBLISHED_AT = "publishedAt"
 
 
-class EverythingFilters(BaseFilter):
+class EverythingFilter(BaseFilter):
+    filter_type: str = "Everything"
     from_: datetime | None = None
     to: datetime | None = None
     sortBy: SortBy | None = SortBy.PUBLISHED_AT

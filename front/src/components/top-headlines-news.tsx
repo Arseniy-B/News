@@ -9,7 +9,7 @@ import { CountryCode, Category, type TopHeadlinesFilter, Filter } from "../servi
 import { Input } from "@/components/ui/input"
 import React from "react";
 import NewsList from "@/components/news-list"
-import { getTopHeadlinesNews } from "@/services/api";
+import { getTopHeadlinesNews, getUserFilters } from "@/services/api";
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -31,6 +31,14 @@ export default function TopHeadlinesNews(){
     };
     setFilters(Filter);
   }
+
+  // async function getFilters(){
+  //   const res = await getUserFilters();
+  //   console.log(res);
+  // }
+  // React.useEffect(() => {
+  //   getFilters()
+  // }, [])
 
   return (
     <>

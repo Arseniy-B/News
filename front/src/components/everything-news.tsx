@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 
 
 export const Filter: EverythingFilter = {
-  domains: "techcrunch.com, engadget.com",
+  domains: "bbc.co.uk, techcrunch.com, engadget.com",
   sortBy: SortBy.PUBLISHED_AT,
   language: Language.EN,
   pageSize: 20,

@@ -1,6 +1,6 @@
 import { tokenService, refreshToken } from "../services/api";
 import { Button } from "@/components/ui/button";
-import { HatGlasses, LogIn } from "lucide-react";
+import { User, LogIn } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { decodeJwt, type JwtPayload } from "../services/jwt-decode";
 import React from "react";
@@ -18,10 +18,8 @@ export default function AuthMenu(){
       setIsAuthenticated(true);
     }
     async function checkAuthenticated(){
-      const res = await refreshToken()
-      if(res.data.status_code >= 200 && res.data.status_code <= 299){
-        setIsAuthenticated(true);
-      }
+      await refreshToken()
+      setIsAuthenticated(true);
     }
     checkAuthenticated();
   }, []);
@@ -30,7 +28,7 @@ export default function AuthMenu(){
     return (
       <>
         <Button variant="ghost" onClick={() => {navigate("/user/profile")}}>
-          <HatGlasses />
+          <User/>
         </Button>
       </>
     )

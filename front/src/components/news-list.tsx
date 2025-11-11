@@ -106,7 +106,7 @@ const NewsList = <T extends BaseFilter>({
             }}/>
           </PaginationItem>
           {getPaginatePages(filter.page).map(i => (
-            <PaginationItem>
+            <PaginationItem key={i}>
               <PaginationLink 
                 className={filter.page === i ? 'bg-chart-3' : ''}
                 onClick={() => {setFilter({...filter, page: i})}}

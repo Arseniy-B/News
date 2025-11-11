@@ -1,8 +1,8 @@
 from abc import ABC
 
 
-class NewsFilters(ABC):
-    pass
+class NewsFilter(ABC):
+    filter_type: str
 
 
 class News(ABC):

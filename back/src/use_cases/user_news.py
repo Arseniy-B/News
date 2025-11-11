@@ -1,29 +1,29 @@
 from src.domain.port.users import UserPort, AuthPort
-from src.domain.port.news_api import NewsPort
-from src.domain.entities.news import News, NewsFilters
+from src.domain.port.news_api import NewsApiPort, NewsFilterPort
+from src.domain.entities.news import News, NewsFilter
 from src.use_cases.exceptions import UserNotAuthorized, UserNotFound
 from typing import Sequence
 
 
-async def set_user_filters(
-    user_port: UserPort, auth_port: AuthPort, news_port: NewsPort
-) -> NewsFilters:
+async def set_user_filter(
+    auth_port: AuthPort,
+    news_filter: NewsFilter,
+    filter_port: NewsFilterPort,
+):
     if not auth_port.is_authenticated:
         raise UserNotAuthorized
-    filters = news_port.get_filters()
     user_id = auth_port.get_user_id()
     if not user_id:
         raise UserNotFound
-    await user_port.set_news_filters(filters, user_id)
-    return filters
+    await filter_port.save(user_id, news_filter=news_filter)
 
 
-async def get_user_filters(
-    user_port: UserPort,
+async def get_user_filter(
     auth_port: AuthPort,
-    filter_type: type[NewsFilters] | None = None,
-) -> Sequence[NewsFilters]:
+    filter_port: NewsFilterPort,
+    filter_types: list[str],
+) -> Sequence[NewsFilter]:
     if not auth_port.is_authenticated:
         raise UserNotAuthorized
     user_id = auth_port.get_user_id()
-    return await user_port.get_news_filters(user_id, filter_type=filter_type)
+    return await filter_port.get_by_type(user_id, filter_types)

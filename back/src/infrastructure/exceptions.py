@@ -1,7 +1,7 @@
 from src.domain.exceptions import (
     DomainError,
 )
-from src.use_cases.exceptions import UserNotFound as UseCasesUserNotFound
+from src.use_cases.exceptions import UserNotFound as UseCasesUserNotFound, FilterNotFound as UseCasesFilterNotFound
 
 
 class BaseInfrastructureError(DomainError):
@@ -17,6 +17,8 @@ class ValidationError(BaseInfrastructureError):
 class UserNotFound(BaseInfrastructureError, UseCasesUserNotFound):
     pass
 
+class FilterNotFound(BaseInfrastructureError, UseCasesFilterNotFound):
+    pass
 
 class BaseRepoError(DomainError):
     pass

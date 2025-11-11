@@ -76,7 +76,7 @@ export default function Profile(){
   }
 
   async function getFilters(){
-    var res = await getUserFilters();
+    var res = await getUserFilters(["Everything", "TopHeadlines"]);
     console.log(res.data);
   }
 
@@ -126,10 +126,7 @@ export default function Profile(){
           <div>created at: <div className="font-light text-[20px] mb-5">{user?.created_at ? format(user.created_at, 'yyyy-MM-dd HH:mm') : 'N/A'}</div></div>
         </div>
         <div className="col-span-4">
-          <Card className="w-full h-full rounded-[0]">
-            <CardHeader>
-              
-            </CardHeader>
+          <Card className="w-full h-full rounded-[0] bg-background">
             <CardContent>
               <div className="text-[30px] font-thin flex flex-col">Settings</div>
                 <div>theme: <ModeToggle /></div>

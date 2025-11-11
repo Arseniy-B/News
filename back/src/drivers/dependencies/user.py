@@ -10,18 +10,16 @@ from src.infrastructure.services.db.db import AsyncSession, db_helper
 async def get_user_repo(
     session: AsyncSession = Depends(db_helper.get_session),
 ) -> UserRepository:
-    user_adapter = UserRepository(session)
-    return user_adapter
+    return UserRepository(session)
 
 
 async def get_auth_repo(request: Request, response: Response) -> AuthAdapter:
-    auth_adapter = AuthAdapter(request, response)
-    return auth_adapter
+    return AuthAdapter(request, response)
 
 
 async def get_email_auth_repo(request: Request, response: Response) -> EmailAuthAdapter:
-    auth_adapter = EmailAuthAdapter(request, response)
-    return auth_adapter
+    return EmailAuthAdapter(request, response)
+
 
 EmailAuthRepoDep = Annotated[EmailAuthAdapter, Depends(get_email_auth_repo)]
 AuthRepoDep = Annotated[AuthAdapter, Depends(get_auth_repo)]

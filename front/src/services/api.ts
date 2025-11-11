@@ -25,7 +25,7 @@ export const tokenService = {
 async function request<T = any>(opts: {
   method: AxiosRequestConfig["method"],
   url: string,
-  data?: Record<string, any> | null,  // Более гибкий тип для params/body
+  data?: Record<string, any> | null,
   params?: Record<string, any>,
   credentials: boolean,
   headers?: Record<string, string>,
@@ -100,7 +100,7 @@ export async function getTopHeadlinesNews(filters: any = {}){
     method: "post",
     url: "/news/get",
     data: filters,
-    params: {news_type: "TopHeadlines"},
+    params: {filter_type: "TopHeadlines"},
     credentials: false
   })
 }
@@ -110,7 +110,7 @@ export async function getEverythingNews(filters: any={}){
     method: "post",
     url: "/news/get",
     data: filters,
-    params: {news_type: "Everything"},
+    params: {filter_type: "Everything"},
     credentials: false
   })
 }
@@ -144,16 +144,16 @@ export async function setUserFilters(filters: any = {}, filter_type: string){
     method: "post",
     url: "/user/set-filters",
     data: filters,
-    params: {news_type: filter_type},
+    params: {filter_type: filter_type},
     credentials: true 
   })
 }
 
-export async function getUserFilters(){
+export async function getUserFilters(filterTypes: string[]){
   return request<Response<any>>({
     method: "post",
     url: "/user/get-filters",
+    data: filterTypes,
     credentials: true
   })
 }
-

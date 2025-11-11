@@ -1,32 +1,35 @@
 from typing import Any
 
+from pydantic import BaseModel
 from dataclasses import asdict
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, status, Body
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from datetime import datetime
 
 from src.drivers.dependencies.user import AuthRepoDep, UserRepoDep
-from src.infrastructure.adapters.news.news_api import create_news_adapter, news_types
+from src.drivers.dependencies.news_api import FilterRepoDep
+from src.infrastructure.adapters.news.news_api import NewsAdapter
 from src.use_cases.action_on_user import get_user_data
 from src.use_cases.exceptions import (
     UserNotAuthorized,
     UserNotFound,
 )
-from src.use_cases.user_news import get_user_filters, set_user_filters
+from src.use_cases.user_news import get_user_filter, set_user_filter
 
 router = APIRouter(prefix="/user")
 
 
 @router.post("/set-filters")
 async def set_news_filters(
-    user_repo: UserRepoDep,
     auth_repo: AuthRepoDep,
-    news_type: str,
-    data: dict[str, Any],
+    filter_repo: FilterRepoDep,
+    filter_type: str,
+    data: dict[str, Any] = Body(...),
 ):
-    news_adapter = await create_news_adapter(news_type, data)
-    await set_user_filters(user_repo, auth_repo, news_adapter)
+    filter_model = filter_repo.get_filter_by_type(filter_type)
+    news_filter = filter_model.model_validate(data)
+    await set_user_filter(auth_repo, news_filter, filter_repo)
     return JSONResponse(
         {"detail": "filters were saved"}, status_code=status.HTTP_200_OK
     )
@@ -34,15 +37,12 @@ async def set_news_filters(
 
 @router.post("/get-filters")
 async def get_news_filters(
-    user_repo: UserRepoDep,
     auth_repo: AuthRepoDep,
-    news_type_name: str | None = None,
+    filter_repo: FilterRepoDep,
+    filter_types: list[str] = Body(...),
 ):
-    news_type = None
-    if news_type_name in news_types:
-        news_type = news_types[news_type_name]
-    data = await get_user_filters(user_repo, auth_repo, news_type)
-    return JSONResponse({"data": data}, status_code=status.HTTP_200_OK)
+    data = await get_user_filter(auth_repo, filter_repo, filter_types)
+    return JSONResponse({"data": [i.__dict__ for i in data]}, status_code=status.HTTP_200_OK)
 
 
 @router.get("/get")
