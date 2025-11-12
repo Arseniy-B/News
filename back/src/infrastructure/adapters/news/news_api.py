@@ -40,7 +40,7 @@ class NewsAdapter(NewsApiPort):
     async def get_url(self, news_filter: BaseFilter) -> str:
         query_string = ""
         if news_filter:
-            query_params = news_filter.model_dump(mode="json", exclude_none=True)
+            query_params = news_filter.model_dump_url(mode="json", exclude_none=True)
             query_string = urlencode(query_params) if query_params else ""
 
         base_url = config.news_api.BASE_API_URL
@@ -50,7 +50,7 @@ class NewsAdapter(NewsApiPort):
     async def get_news_list(
         self, news_filter: NewsFilter
     ) -> DomainNewsResponse:
-        if news_filter and not isinstance(news_filter, BaseFilter):
+        if not isinstance(news_filter, BaseFilter):
             raise NewsRepoError("Invalid filter format")
         response_news = None
         url = await self.get_url(news_filter)

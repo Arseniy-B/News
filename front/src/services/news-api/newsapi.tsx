@@ -70,6 +70,22 @@ export const Language = {
 export type Language = (typeof Language)[keyof typeof Language];
 
 
+export const SearchIn = {
+  TITLE: "title",
+  DESCRIPTION: "description",
+  CONTENT: "content",
+}
+export type SearchIn = (typeof SearchIn)[keyof typeof SearchIn];
+
+
+export const Domains = {
+  BBC: "bbc.co.uk",
+  ECHCRUNCH: "echcrunch.com",
+  ENGADGET: "engadget.com"
+}
+export type Domains = (typeof Domains)[keyof typeof Domains];
+
+
 export interface BaseFilter{
   pageSize: number;
   page: number;
@@ -77,6 +93,7 @@ export interface BaseFilter{
 
 
 export interface TopHeadlinesFilter extends BaseFilter {
+  filter_type: "TopHeadlines";
   country?: CountryCode;
   category?: Category;
   q?: string;
@@ -85,23 +102,34 @@ export interface TopHeadlinesFilter extends BaseFilter {
 }
 
 export interface EverythingFilter extends BaseFilter {
+  filter_type: "Everything";
   from?: Date;
   to?: Date;
   sortBy: SortBy;
   language: Language;
-  domains: string
+  domains: Domains[];
+  searchIn: SearchIn[];
   q?: string;
   pageSize: number;
   page: number;
 }
 
 export const Filter: TopHeadlinesFilter = {
+  filter_type: "TopHeadlines",
   country: CountryCode.US, 
-  // category: Category.BUSINESS,
-  // q: "экономика",
   pageSize: 20,
   page: 1
 };
+
+export const DefaultEverythingFIlter: EverythingFilter = {
+  filter_type: "Everything",
+  sortBy: SortBy.POPULARITY,
+  language: Language.EN,
+  domains: [Domains.BBC, Domains.ENGADGET, Domains.ECHCRUNCH],
+  searchIn: [SearchIn.TITLE, SearchIn.CONTENT, SearchIn.DESCRIPTION],
+  pageSize: 20,
+  page: 1,
+}
 
 const USER_FILTER_KEY = "filters"
 

@@ -1,6 +1,8 @@
 import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import type { NewsItem } from "../services/news-api/newsapi";
+import type { TopHeadlinesFilter, EverythingFilter} from "@/services/news-api/newsapi";
+import type EverythingNews from "@/components/everything-news";
 
 
 const ACCESS_TOKEN_KEY = "access_token";
@@ -139,6 +141,7 @@ export async function logout(){
   })
 }
 
+
 export async function setUserFilters(filters: any = {}, filter_type: string){
   return request<Response<any>>({
     method: "post",
@@ -150,7 +153,7 @@ export async function setUserFilters(filters: any = {}, filter_type: string){
 }
 
 export async function getUserFilters(filterTypes: string[]){
-  return request<Response<any>>({
+  return request<Response<(TopHeadlinesFilter | EverythingFilter)[]>>({
     method: "post",
     url: "/user/get-filters",
     data: filterTypes,

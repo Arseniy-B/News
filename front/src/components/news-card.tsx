@@ -23,7 +23,7 @@ export default function NewsCard({ news }: NewsCardProps){
 
   React.useEffect(() => {
     const pastDate = new Date(news.publishedAt);
-    const now = new Date(); // Текущее время в браузере
+    const now = new Date();
 
     const diffMs = now.getTime() - pastDate.getTime();
 

@@ -1,10 +1,11 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, field_serializer, model_validator, ConfigDict
+from pydantic import BaseModel, field_serializer, model_validator, ConfigDict, Field
 
 from src.domain.port.news_api import NewsFilter
 from src.infrastructure.exceptions import ValidationError
+from typing import get_args, Literal
 
 
 class BaseFilter(BaseModel, NewsFilter):
@@ -13,6 +14,9 @@ class BaseFilter(BaseModel, NewsFilter):
 
     def get_url_part(self) -> str:
         return ""
+
+    def model_dump_url(self, *args, **kwargs) -> dict:
+        return self.model_dump(*args, **kwargs)
 
 
 class Language(Enum):
@@ -66,7 +70,7 @@ class Category(Enum):
 
 class TopHeadlinesFilter(BaseFilter):
     filter_type: str = "TopHeadlines"
-    country: CountryCode | None = None 
+    country: CountryCode | None = None
     category: Category | None = None
     q: str | None = None
     pageSize: int = 20
@@ -100,29 +104,36 @@ class SortBy(Enum):
     PUBLISHED_AT = "publishedAt"
 
 
+class SearchIn(Enum):
+    TITLE = "title"
+    DESCRIPTION = "description"
+    CONTENT = "content"
+
+
+AllSearchIn = list(get_args(SearchIn))
+
+
+class Domains(Enum):
+    BBC = "bbc.co.uk"
+    ECHCRUNCH = "echcrunch.com"
+    ENGADGET = "engadget.com"
+
+
+AllDomains = list(get_args(Domains))
+
+
 class EverythingFilter(BaseFilter):
     filter_type: str = "Everything"
-    from_: datetime | None = None
+    from_: datetime | None = Field(alias="type", default=None)
     to: datetime | None = None
-    sortBy: SortBy | None = SortBy.PUBLISHED_AT
-    language: Language | None = Language.EN
-    domains: str
+    sortBy: SortBy = SortBy.PUBLISHED_AT
+    language: Language = Language.EN
+    domains: list[Domains] = AllDomains
     q: str | None = None
+    searchIn: list[SearchIn] = AllSearchIn
     pageSize: int = 20
     page: int = 1
     model_config = ConfigDict(use_enum_values=True)
-
-    @field_serializer("from_")
-    def move_to_from_(self, data: dict[str, str] | None) -> datetime | None:
-        if not data:
-            return None
-        field = None
-        try:
-            if "from" in data:
-                field = datetime.fromtimestamp(int(data["from"]))
-        except (KeyError, ValueError) as e:
-            raise ValidationError(str(e))
-        return field
 
     @model_validator(mode="after")
     def validate_all_fields(self):
@@ -139,3 +150,10 @@ class EverythingFilter(BaseFilter):
 
     def get_url_part(self):
         return "everything"
+
+    def model_dump_url(self, *args, **kwargs) -> dict:
+        data = self.model_dump(*args, **kwargs)
+        data["domains"] = ",".join(data["domains"])
+        data["searchIn"] = ",".join(data["searchIn"])
+        return data
+
