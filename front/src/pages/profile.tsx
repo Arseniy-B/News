@@ -31,6 +31,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { AxiosError } from "axios";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 
 export default function Profile(){
@@ -98,6 +100,14 @@ export default function Profile(){
     tokenService.delete();
     navigate("/auth/sign_in");
   }
+
+  const toggleDomain = (domain: Domains) => {
+    const new_domains = everything.domains.includes(domain) 
+      ? everything.domains.filter(d => d !== domain) 
+      : [...everything.domains, domain];
+    setEverything({...everything, domains: new_domains});
+  };
+
   return (
     <>
       <div className="fixed w-full p-5 flex justify-end">
@@ -162,6 +172,24 @@ export default function Profile(){
                         ))}
                       </SelectContent>
                     </Select>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <Switch defaultChecked={everything.domains.includes(Domains.BBC)} onCheckedChange={() => {
+                          toggleDomain(Domains.BBC);
+                        }} id="BBC" />
+                        <Label htmlFor="BBC">BBC</Label>
+
+                        <Switch defaultChecked={everything.domains.includes(Domains.ENGADGET)} onCheckedChange={() => {
+                          toggleDomain(Domains.ENGADGET);
+                        }} id="ENGADGET" />
+                        <Label htmlFor="ENGADGET">Engadget</Label>
+
+                        <Switch defaultChecked={everything.domains.includes(Domains.ECHCRUNCH)} onCheckedChange={() => {
+                          toggleDomain(Domains.ECHCRUNCH);
+                        }} id="ECHCRUNCH" />
+                        <Label htmlFor="ECHCRUNCH">Echcrunch</Label>
+                      </div>
+                    </div>
                     <Button
                       onClick={() => {
                         if(!isImpacted){
