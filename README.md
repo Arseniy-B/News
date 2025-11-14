@@ -1,4 +1,4 @@
- News Aggregator
+# News Aggregator
 
 ## Description
 
@@ -16,8 +16,10 @@ News Aggregator is a simple web application for aggregating news from a third-pa
 ## Installation and Setup
 
 1. Clone the repository:
-	`git clone https://github.com/Arseniy-B/News`
-	`cd news-aggregator`
+```
+	git clone https://github.com/Arseniy-B/News.git
+	cd news-aggregator
+```
 
 2. Create a .env file in the back/ directory:
 ```
@@ -42,7 +44,7 @@ News Aggregator is a simple web application for aggregating news from a third-pa
 ```
 
 3. Launch with Docker Compose:
-	`docker-compose up`
+	`docker-compose up --build`
 
 The application will be available at http://localhost:5173 (or your configured port). Ensure Docker and Docker Compose are installed on your system.
 

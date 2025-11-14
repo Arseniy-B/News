@@ -6,7 +6,7 @@ import type EverythingNews from "@/components/everything-news";
 
 
 const ACCESS_TOKEN_KEY = "access_token";
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "/api";
 
 
 export type Response<T> = { detail: string | null, data: T | null}
