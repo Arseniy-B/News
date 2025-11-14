@@ -10,11 +10,7 @@ services:
     depends_on:
       - back
       - front
-    networks:
-      - dev
   front:
     build: ./front
     ports:
       - "0.0.0.0:5173:5173"
-    networks:
-      - dev

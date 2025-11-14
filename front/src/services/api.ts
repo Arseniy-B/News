@@ -5,7 +5,7 @@ import type { TopHeadlinesFilter, EverythingFilter} from "@/services/news-api/ne
 
 
 const ACCESS_TOKEN_KEY = "access_token";
-const BASE_URL = "http://127.0.0.1/api";
+const BASE_URL = "http://178.72.150.69/api";
 
 
 export type Response<T> = { detail: string | null, data: T | null}
