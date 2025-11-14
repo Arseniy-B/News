@@ -9,7 +9,7 @@ import { CountryCode, Category, type TopHeadlinesFilter, Filter } from "../servi
 import { Input } from "@/components/ui/input"
 import React from "react";
 import NewsList from "@/components/news-list"
-import { getTopHeadlinesNews, getUserFilters } from "@/services/api";
+import { getTopHeadlinesNews } from "@/services/api";
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 

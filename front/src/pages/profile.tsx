@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import type { User } from "../services/user-api";
 import { format } from 'date-fns';
 import type { TopHeadlinesFilter, EverythingFilter } from '../services/news-api/newsapi';
-import { CountryCode, Category, Filter, DefaultEverythingFIlter, SortBy, Language, SearchIn, Domains } from '../services/news-api/newsapi';
+import { CountryCode, Category, Filter, DefaultEverythingFIlter, SortBy, Language, Domains } from '../services/news-api/newsapi';
 import {
   AlertDialog,
   AlertDialogAction,

@@ -15,7 +15,7 @@ import { getEverythingNews } from "@/services/api";
 import { Input } from "@/components/ui/input"
 import React from "react";
 import NewsList from "@/components/news-list"
-import { Search, SwatchBook, RefreshCcw } from "lucide-react"
+import { Search, SwatchBook } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
