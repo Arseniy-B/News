@@ -2,11 +2,10 @@ import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import type { NewsItem } from "../services/news-api/newsapi";
 import type { TopHeadlinesFilter, EverythingFilter} from "@/services/news-api/newsapi";
-import type EverythingNews from "@/components/everything-news";
 
 
 const ACCESS_TOKEN_KEY = "access_token";
-const BASE_URL = "/api";
+const BASE_URL = "http://178.72.150.69/api";
 
 
 export type Response<T> = { detail: string | null, data: T | null}
