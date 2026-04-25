@@ -6,14 +6,30 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - dev
   redis:
     image: redis:alpine
+    networks:
+      - dev
   back:
     build: .
     ports:
       - "0.0.0.0:8000:8000"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - .env
+    networks:
+      - dev
+networks:
+  dev:
+    external: true
